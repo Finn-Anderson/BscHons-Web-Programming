@@ -1,8 +1,11 @@
 'use strict'
 // Defining canvas and world
-var width = 800;
-var height = 600;
+var width = 1280;
+var height = 720;
 var scale = 30;
+
+document.getElementById("b2dcan").width = width;
+document.getElementById("b2dcan").height = height;
 
 var world = new b2World(
 	new b2Vec2(0,9.81),

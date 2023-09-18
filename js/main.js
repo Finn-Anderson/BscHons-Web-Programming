@@ -14,8 +14,7 @@ var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-
-function CreateBox(density, friction, restitution, type, x, y, width, height, objid) {
+function CreateObject(density, friction, restitution, type, x, y, objid) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = density;
 	fixDef.friction = friction;
@@ -25,6 +24,12 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, ob
 	bodyDef.type = type;
 	bodyDef.position.x = x / scale;
 	bodyDef.position.y = y / scale;
+
+	return [fixDef, bodyDef]
+}
+
+function CreateBox(density, friction, restitution, type, x, y, width, height, objid) {
+	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
 
 	fixDef.shape = new b2PolygonShape;
 	fixDef.shape.SetAsBox(width/scale, height/scale);
@@ -36,15 +41,7 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, ob
 }
 
 function CreateCircle(density, friction, restitution, type, x, y, r, objid) {
-	var fixDef = new b2FixtureDef;
-	fixDef.density = density;
-	fixDef.friction = friction;
-	fixDef.restitution = restitution;
-
-	var bodyDef = new b2BodyDef;
-	bodyDef.type = type;
-	bodyDef.position.x = x / scale;
-	bodyDef.position.y = y / scale;
+	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
 
 	fixDef.shape = new b2CircleShape(r/scale);
 
