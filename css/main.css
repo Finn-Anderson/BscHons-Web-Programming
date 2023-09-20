@@ -6,3 +6,73 @@ body {
 	align-items: center;
 	background-color: #121212;
 }
+
+body, button {
+	font-family: "Lato", "Arial", sans-serif;
+	font-size: 27px;
+	color: white;
+}
+
+#timer, #score, #pickside {
+	position: absolute;
+}
+
+#timer {
+	margin-right: 1158px;
+	margin-bottom: 680px;
+}
+
+#score {
+	margin-bottom: 650px;
+}
+
+#score p {
+	display: inline-block;
+	padding: 0px 12px;
+	font-size: 54px;
+	line-height: 0.3;
+}
+
+#score p:first-child {
+	color: #ff003b;
+}
+
+#score p:last-child {
+	color: #003bff;
+}
+
+#pickside {
+	width: 1280px;
+	height: 720px;
+}
+
+#pickside button {
+	border: none;
+	width: 50%;
+	height: 100%;
+	cursor: pointer;
+}
+#pickside #redteam, #score p:first-child {
+	border-right: 2px solid white;
+}
+
+#pickside #blueteam, #score p:last-child {
+	border-left: 2px solid white;
+}
+
+#pickside #redteam {
+	background-color: rgba(255, 0, 59, 0.5);
+}
+
+#pickside #redteam:hover {
+	background-color: rgba(255, 0, 59, 0.75);
+}
+
+#pickside #blueteam {
+	background-color: rgba(0, 59, 255, 0.5);
+	border-left: 2px solid white;
+}
+
+#pickside #blueteam:hover {
+	background-color: rgba(0, 59, 255, 0.75);
+}

@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <head>
 	<title>Finn's Web Game</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&family=Roboto:wght@700&display=swap" rel="stylesheet">
+
 	<link rel="stylesheet" href="css/main.css">
 
 	<script src="libraries/Box2dWeb-2.1.a.3.min.js" defer></script>
@@ -9,8 +13,28 @@
 
 	<script src="js/main.js" defer></script>
 	<script src="js/world.js" defer></script>
+	<script src="js/player.js" defer></script>
 </head>
 <body>
-	<canvas></canvas>
+	<canvas>
+	</canvas>
+
+	<p id="timer">00:00</p>
+
+	<div id="score">
+		<p>0</p><!-- Whitespace creates a space between elements. This comment removes it.
+		--><p>0</p>
+	</div>
+
+	<div id="pickside">
+		<button id="redteam" value="0" onclick="ChooseTeam('Red', this.value)">
+			<p>Red Team</p>
+			<p class="capacity">0 / 1</p>
+		</button><!-- Whitespace creates a space between elements. This comment removes it.
+		--><button id="blueteam" value="0" onclick="ChooseTeam('Blue', this.value)">
+			<p>Blue Team</p>
+			<p class="capacity">0 / 1</p>
+		</button>
+	</div>
 </body>
 </html>

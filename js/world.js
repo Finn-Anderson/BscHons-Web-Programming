@@ -26,7 +26,7 @@ var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), heig
 var blueCrossbar = CreateTriangle(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 250), 62, 50, "blueCrossbar", "bottomRight");
 
 // Create dynamic objects
-var football = CreateCircle(1.0, 0.2, 0.8, b2Body.b2_dynamicBody, (width / 2 - 20), (height - 300), 20, "football");
+var football = CreateCircle(1.0, 0.2, 0.8, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
 
 // Allow football to go through posts
 var filter = redPost.GetFilterData(); // Getting either posts or football would do.
