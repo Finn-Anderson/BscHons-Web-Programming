@@ -19,11 +19,11 @@ var leftWall = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 5, height, 5, heig
 var rightWall = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 5), height, 5, height, "rightWall");
 
 // Create goal posts
-var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 100, height, 5, 200, "redPost");
-var redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 100, height, 5, 200, "redCrossbar");
-console.log(redCrossbar);
+var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, "redPost");
+var redCrossbar = CreateTriangle(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 250), 62, 50, "redCrossbar", "bottomLeft");
 
-var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 100), height, 5, 200, "bluePost");
+var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), height, 60, 200, "bluePost");
+var blueCrossbar = CreateTriangle(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 250), 62, 50, "blueCrossbar", "bottomRight");
 
 // Create dynamic objects
 var football = CreateCircle(1.0, 0.2, 0.8, b2Body.b2_dynamicBody, (width / 2 - 20), (height - 300), 20, "football");
@@ -51,17 +51,27 @@ function start() {
 	easelground.x = ground.GetBody().GetPosition().x * scale;
 	easelground.y = ground.GetBody().GetPosition().y * scale;
 
-	var easelRedPost = CreateBitmap(loader.getResult("post"), 5, 200);
+	var easelRedPost = CreateBitmap(loader.getResult("post"), 60, 200);
 	easelRedPost.x = redPost.GetBody().GetPosition().x * scale;
 	easelRedPost.y = redPost.GetBody().GetPosition().y * scale;
 
-	var easelBluePost = CreateBitmap(loader.getResult("post"), 5, 200);
+	var easelRedCrossbar = CreateBitmap(loader.getResult("crossbar"), 62, 50);
+	easelRedCrossbar.x = redCrossbar.GetBody().GetPosition().x * scale;
+	easelRedCrossbar.y = redCrossbar.GetBody().GetPosition().y * scale;
+
+	var easelBluePost = CreateBitmap(loader.getResult("post"), 60, 200);
 	easelBluePost.x = bluePost.GetBody().GetPosition().x * scale;
 	easelBluePost.y = bluePost.GetBody().GetPosition().y * scale;
+	easelBluePost.rotation = 180;
+
+	var easelBlueCrossbar = CreateBitmap(loader.getResult("crossbar"), 62, 50);
+	easelBlueCrossbar.x = blueCrossbar.GetBody().GetPosition().x * scale;
+	easelBlueCrossbar.y = blueCrossbar.GetBody().GetPosition().y * scale;
+	easelBlueCrossbar.scaleX = -easelBlueCrossbar.scaleX;
 
 	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
 
-	stage.addChild(easelbg, easelground, easelRedPost, easelBluePost, easelfootball);
+	stage.addChild(easelbg, easelground, easelRedPost, easelRedCrossbar, easelBluePost, easelBlueCrossbar, easelfootball);
 
 	createjs.Ticker.framerate = 60;
 	createjs.Ticker.timingMode = createjs.Ticker.RAF;

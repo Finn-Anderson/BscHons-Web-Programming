@@ -25,7 +25,7 @@ function CreateObject(density, friction, restitution, type, x, y, objid) {
 	bodyDef.position.x = x / scale;
 	bodyDef.position.y = y / scale;
 
-	return [fixDef, bodyDef]
+	return [fixDef, bodyDef];
 }
 
 function CreateBox(density, friction, restitution, type, x, y, width, height, objid) {
@@ -40,14 +40,29 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, ob
 	return thisobj;
 }
 
-function CreateTriangle(density, friction, restitution, type, x, y, width, height, objid) {
+function CreateTriangle(density, friction, restitution, type, x, y, width, height, objid, angle) {
 	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
 
 	fixDef.shape = new b2PolygonShape;
-	fixDef.vertexCount = 3;
-	fixDef.vertices[0].Set(-(width / 2), 0.0);
-	fixDef.vertices[1].Set((width / 2), 0.0);
-	fixDef.vertices[2].Set(0.0, height);
+	fixDef.shape.SetAsBox(width/scale, height/scale);
+
+	var corner;
+	if (angle == "topRight") {
+		angle = 3;
+		corner = 2;
+	} else if (angle == "topLeft") {
+		angle = 2;
+		corner = 1;
+	} else if (angle == "bottomLeft") {
+		angle = 1;
+		corner = 0;
+	} else {
+		angle = 0;
+		corner = 3;
+	}
+
+	fixDef.shape.m_vertices[angle] = fixDef.shape.m_vertices[corner];
+	fixDef.shape.m_normals[angle] = fixDef.shape.m_normals[corner];
 
 	var thisobj = world.CreateBody(bodyDef).CreateFixture(fixDef);
 	thisobj.GetBody().SetUserData({id:objid});
@@ -79,6 +94,7 @@ var manifest = [
 	{src:"ground.png", id:"ground"},
 	{src:"football.png", id:"football"},
 	{src:"post.png", id:"post"},
+	{src:"crossbar.png", id:"crossbar"},
 	{src:"team-red.png", id:"team-red"},
 	{src:"team-blue.png", id:"team-blue"},
 ];
