@@ -16,25 +16,36 @@
 	<script src="js/player.js" defer></script>
 </head>
 <body>
-	<canvas>
-	</canvas>
+	<div id="game">
+		<canvas>
+		</canvas>
 
-	<p id="timer">00:00</p>
+		<p id="timer">00:00</p>
 
-	<div id="score">
-		<p>0</p><!-- Whitespace creates a space between elements. This comment removes it.
-		--><p>0</p>
+		<div id="score">
+			<p>0</p><!-- Whitespace creates a space between elements. This comment removes it.
+			--><p>0</p>
+		</div>
+
+		<button id="displaypick" onclick="DisplayPicking()"></button>
+
+		<div id="pickside">
+			<button id="redteam" onclick="ChooseTeam('team-red')">
+				<p>Red Team</p>
+				<p class="capacity">0</p>
+			</button><!-- Whitespace creates a space between elements. This comment removes it.
+			--><button id="blueteam" onclick="ChooseTeam('team-blue')">
+				<p>Blue Team</p>
+				<p class="capacity">0</p>
+			</button>
+		</div>
 	</div>
 
-	<div id="pickside">
-		<button id="redteam" value="0" onclick="ChooseTeam('Red', this.value)">
-			<p>Red Team</p>
-			<p class="capacity">0 / 1</p>
-		</button><!-- Whitespace creates a space between elements. This comment removes it.
-		--><button id="blueteam" value="0" onclick="ChooseTeam('Blue', this.value)">
-			<p>Blue Team</p>
-			<p class="capacity">0 / 1</p>
-		</button>
+	<div id="controls">
+		<p>AD - Movement</p>
+		<p>Spacebar - Jump</p>
+		<p>Shift - Power Shot</p>
+		<p>Control - Lunge</p>
 	</div>
 </body>
 </html>

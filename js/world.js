@@ -36,6 +36,9 @@ redPost.SetFilterData(filter);
 bluePost.SetFilterData(filter);
 football.SetFilterData(filter);
 
+// Destroy list
+var destroylist = [];
+
 // Load images
 var loader = new createjs.LoadQueue(false);
 loader.addEventListener("complete", start);
@@ -86,9 +89,23 @@ function tick(e) {
 	);
 	world.ClearForces();
 
+	for(var ply of destroylist) {
+		stage.removeChild(ply[1]);
+
+		world.DestroyBody(ply[0].GetBody());
+	}
+	destroylist.length = 0;
+
+
 	easelfootball.x = football.GetBody().GetPosition().x * scale;
 	easelfootball.y = football.GetBody().GetPosition().y * scale;
 	easelfootball.rotation = football.GetBody().GetAngle() * (180 / Math.PI);
+
+	for (var i in players) {
+		players[i][1].x = players[i][0].GetBody().GetPosition().x * scale;
+		players[i][1].y = players[i][0].GetBody().GetPosition().y * scale;
+		players[i][1].rotation = players[i][0].GetBody().GetAngle() * (180 / Math.PI);
+	}
 
 	stage.update(e);
 }

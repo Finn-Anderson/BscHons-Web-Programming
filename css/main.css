@@ -1,5 +1,6 @@
 body {
 	display: flex;
+	flex-wrap: wrap;
 	height: 100vh;
 	margin: 0px;
 	justify-content: center;
@@ -13,22 +14,32 @@ body, button {
 	color: white;
 }
 
-#timer, #score, #pickside {
-	position: absolute;
+button {
+	cursor: pointer;
+}
+
+#game {
+	display: grid;
+}
+
+canvas, #timer, #score, #pickside, #displaypick {
+	grid-column: 1;
+	grid-row: 1;
 }
 
 #timer {
-	margin-right: 1158px;
-	margin-bottom: 680px;
+	margin: 24px 30px;
 }
 
 #score {
-	margin-bottom: 650px;
+	width: 100%;
+	text-align: center;
 }
 
 #score p {
 	display: inline-block;
 	padding: 0px 12px;
+	margin-top: 34px;
 	font-size: 54px;
 	line-height: 0.3;
 }
@@ -41,6 +52,13 @@ body, button {
 	color: #003bff;
 }
 
+#displaypick {
+	width: 40px;
+	height: 40px;
+	justify-self: self-end;
+	margin: 24px 30px;
+}
+
 #pickside {
 	width: 1280px;
 	height: 720px;
@@ -50,8 +68,8 @@ body, button {
 	border: none;
 	width: 50%;
 	height: 100%;
-	cursor: pointer;
 }
+
 #pickside #redteam, #score p:first-child {
 	border-right: 2px solid white;
 }
@@ -75,4 +93,9 @@ body, button {
 
 #pickside #blueteam:hover {
 	background-color: rgba(0, 59, 255, 0.75);
+}
+
+#controls {
+	width: 100%;
+	text-align: center;
 }
