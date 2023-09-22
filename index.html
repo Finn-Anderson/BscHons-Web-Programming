@@ -13,6 +13,7 @@
 
 	<script src="js/main.js" defer></script>
 	<script src="js/world.js" defer></script>
+	<script src="js/gamemode.js" defer></script>
 	<script src="js/player.js" defer></script>
 </head>
 <body>
@@ -41,11 +42,35 @@
 		</div>
 	</div>
 
+	<div id="bots">
+		<h2> Number of Bots</h2>
+		<div>
+			<input type="radio" id="0" name="bots" value="0" checked>
+			<label for="0">0</label>
+		</div>
+
+		<div>
+			<input type="radio" id="1" name="bots" value="1">
+			<label for="1">1</label>
+		</div>
+
+		<div>
+			<input type="radio" id="2" name="bots" value="2">
+			<label for="2">2</label>
+		</div>
+
+		<div>
+			<input type="radio" id="3" name="bots" value="3">
+			<label for="3">3</label>
+		</div>
+	</div>
+
 	<div id="controls">
+		<h2>CONTROLS</h2>
 		<p>AD - Movement</p>
 		<p>Spacebar - Jump</p>
 		<p>Shift - Power Shot</p>
-		<p>Control - Lunge</p>
+		<p>Control - Chip</p>
 	</div>
 </body>
 </html>

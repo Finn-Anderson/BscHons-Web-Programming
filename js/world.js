@@ -14,9 +14,9 @@ var world = new b2World(
 
 // Create ground and walls
 var ground = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), (height - 5), (width / 2), 5, "ground");
-var ceiling = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), 5, (width / 2), 5, "ceiling");
-var leftWall = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 5, height, 5, height, "leftWall");
-var rightWall = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 5), height, 5, height, "rightWall");
+var ceiling = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width / 2), 5, (width / 2), 5, "ceiling");
+var leftWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, 5, height, 5, height, "leftWall");
+var rightWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width - 5), height, 5, height, "rightWall");
 
 // Create goal posts
 var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, "redPost");
@@ -29,11 +29,20 @@ var blueCrossbar = CreateTriangle(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 
 var football = CreateCircle(1.0, 0.2, 0.8, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
 
 // Allow football to go through posts
-var filter = redPost.GetFilterData(); // Getting either posts or football would do.
+var filter = ground.GetFilterData(); // Getting any object that must collide with the player and football would do.
 filter.categoryBits = 0x0002;
-filter.groupIndex = -8;
-redPost.SetFilterData(filter);
-bluePost.SetFilterData(filter);
+filter.maskBits = 0x0004;
+ground.SetFilterData(filter);
+ceiling.SetFilterData(filter);
+leftWall.SetFilterData(filter);
+rightWall.SetFilterData(filter);
+redCrossbar.SetFilterData(filter);
+blueCrossbar.SetFilterData(filter);
+
+var filter = football.GetFilterData();
+filter.categoryBits = 0x0004;
+filter.maskBits = 0x0002;
+filter.groupIndex = 2;
 football.SetFilterData(filter);
 
 // Destroy list
@@ -96,7 +105,6 @@ function tick(e) {
 	}
 	destroylist.length = 0;
 
-
 	easelfootball.x = football.GetBody().GetPosition().x * scale;
 	easelfootball.y = football.GetBody().GetPosition().y * scale;
 	easelfootball.rotation = football.GetBody().GetAngle() * (180 / Math.PI);
@@ -108,4 +116,6 @@ function tick(e) {
 	}
 
 	stage.update(e);
+
+	Movement();
 }

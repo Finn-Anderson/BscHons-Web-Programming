@@ -2,7 +2,6 @@
 //
 // Box2dWeb definitions for use in the game.
 //
-
 var b2Vec2 = Box2D.Common.Math.b2Vec2;
 var b2BodyDef = Box2D.Dynamics.b2BodyDef;
 var b2Body = Box2D.Dynamics.b2Body;
@@ -112,3 +111,8 @@ function CreateBitmap(img, b2x, b2y) {
 
 	return bitmap;
 }
+
+//
+// Sets local storage in case of page refresh.
+//
+localStorage.clear();
