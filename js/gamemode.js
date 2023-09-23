@@ -2,6 +2,8 @@
 var players = [];
 var totalSecs = 0;
 var timer_id;
+var play;
+var canScore;
 
 function StartGame(team) {
 	if (timer_id) {
@@ -13,11 +15,55 @@ function StartGame(team) {
 
 	SpawnBots(team);
 
-	// Spawn football
+	Reset();
+}
+
+function Reset() {
+	for (var ply of players) {
+		var x;
+		var y = (height - 300) / scale;
+		if (ply[2] == "team-red") {
+			x = 200 / scale;
+		} else {
+			x = (width - 200) / scale;
+		}
+		ply[0].GetBody().SetLinearVelocity(new b2Vec2 (0, 0));
+		ply[0].GetBody().SetPosition(new b2Vec2 (x, y));
+		ply[0].GetBody().ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
+	}
+
+	play = false;
+
+	document.getElementById("countdown").classList.remove("countdown-flash");
+	document.getElementById("countdown").innerHTML = 3;
+
+	timer_id = setInterval(Countdown, 1000);
+	document.getElementById("countdown").classList.add("countdown-animation");
+
 	if (football) {
 		destroylist.push([football, easelfootball]);
 	}
+}
 
+function Countdown() {
+	var counter = document.getElementById("countdown");
+
+	counter.innerHTML--;
+
+	if (counter.innerHTML == 0) {
+		document.getElementById("countdown").classList.remove("countdown-animation");
+
+		SpawnFootball();
+		
+		clearInterval(timer_id);
+
+		timer_id = setInterval(SetTimer, 1000);
+
+		canScore = true
+	}
+}
+
+function SpawnFootball() {
 	football = CreateCircle(1.0, 0.2, 0.5, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
 	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
 
@@ -29,7 +75,7 @@ function StartGame(team) {
 
 	stage.addChild(easelfootball);
 
-	timer_id = setInterval(SetTimer, 1000);
+	play = true;
 }
 
 function SpawnBots(team) {
@@ -61,7 +107,6 @@ function SpawnEntity(team, type) {
 	var x;
 	if (team == "team-red") {
 		x = 200;
-
 	} else {
 		x = width - 200;
 	}
@@ -102,11 +147,21 @@ function SetTeamNum() {
 }
 
 function SetScore(team) {
-	var score = document.getElementById("score");
-	if (team == "Red") {
-		score.firstChild.innerHTML++;
-	} else {
-		score.lastChild.innerHTML++;
+	if (canScore) {
+		var score = document.getElementById("score");
+		if (team == "team-red") {
+			score.children[0].innerHTML++;
+		} else {
+			score.children[1].innerHTML++;
+		}
+		canScore = false;
+
+		document.getElementById("countdown").innerHTML = "GOAL!!!";
+		document.getElementById("countdown").classList.add("countdown-flash");
+
+		clearInterval(timer_id);
+
+		setTimeout(Reset, 5000);
 	}
 }
 

@@ -13,17 +13,19 @@ var world = new b2World(
 );
 
 // Create ground and walls
-var ground = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), (height - 5), (width / 2), 1, "ground");
-var ceiling = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width / 2), 1, (width / 2), 1, "ceiling");
-var leftWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, 1, height, 1, height, "leftWall");
-var rightWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width - 1), height, 1, height, "rightWall");
+var ground = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), (height - 5), (width / 2), 1, "ground", false);
+var ceiling = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width / 2), 1, (width / 2), 1, "ceiling", false);
+var leftWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, 1, height, 1, height, "leftWall", false);
+var rightWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width - 1), height, 1, height, "rightWall", false);
 
 // Create goal posts
-var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, "redPost");
-var redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 200), 62, 6, "redCrossbar");
+var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, "redPost", false);
+var redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 200), 62, 6, "redCrossbar", false);
+var redGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 30, (height - 95), 38, 100, "redGoal", true);
 
-var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), height, 60, 200, "bluePost");
-var blueCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 200), 62, 6, "blueCrossbar");
+var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), height, 60, 200, "bluePost", false);
+var blueCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 200), 62, 6, "blueCrossbar", false);
+var blueGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 30), (height - 95), 38, 100, "blueGoal", true);
 
 // Define football to use later
 var easelfootball;
@@ -33,12 +35,15 @@ var football;
 var filter = ground.GetFilterData(); // Getting any object that must collide with the player and football would do.
 filter.categoryBits = 0x0002;
 filter.maskBits = 0x0004;
+filter.groupIndex = 8;
 ground.SetFilterData(filter);
 ceiling.SetFilterData(filter);
 leftWall.SetFilterData(filter);
 rightWall.SetFilterData(filter);
 redCrossbar.SetFilterData(filter);
 blueCrossbar.SetFilterData(filter);
+redGoal.SetFilterData(filter);
+blueGoal.SetFilterData(filter);
 
 // Destroy list
 var destroylist = [];
@@ -124,19 +129,21 @@ function tick(e) {
 
 	stage.update(e);
 
-	Movement();
+	if (play) {
+		Movement();
+	}
 }
 
 var listener = new Box2D.Dynamics.b2ContactListener;
 listener.BeginContact = function(contact) {
-	if ((contact.GetFixtureA().GetBody().GetUserData().id == "player" || contact.GetFixtureA().GetBody().GetUserData().id == "bot") && contact.GetFixtureB().GetBody().GetUserData().id == "football") {
-		var ply = contact.GetFixtureA().GetBody();
-		var ball = contact.GetFixtureB().GetBody();
+	var obj1 = contact.GetFixtureA().GetBody();
+	var obj2 = contact.GetFixtureB().GetBody();
 
-		var pV = contact.GetFixtureA().GetBody().GetLinearVelocity();
-		var bV = contact.GetFixtureB().GetBody().GetLinearVelocity();
+	if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
+		var pV = obj1.GetLinearVelocity();
+		var bV = obj2.GetLinearVelocity();
 		
-		var pos = new b2Vec2((ply.GetPosition().x - ball.GetPosition().x), (ply.GetPosition().y - ball.GetPosition().y));
+		var pos = new b2Vec2((obj1.GetPosition().x - obj2.GetPosition().x), (obj1.GetPosition().y - obj2.GetPosition().y));
 
 		bV.x = -pos.x * Math.abs(pV.x) * 2;
 		bV.y = pos.y * Math.abs(pV.y) * 4;
@@ -145,6 +152,12 @@ listener.BeginContact = function(contact) {
 			if (bV.y == 0) {
 				bV.y -= 15;
 			}
+		}
+	} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
+		if (obj1.GetUserData().id == "redGoal") {
+			SetScore("team-blue");
+		} else {
+			SetScore("team-red");
 		}
 	}
 }

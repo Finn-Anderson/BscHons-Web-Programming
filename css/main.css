@@ -27,7 +27,7 @@ h2 {
 	margin-top: 24px;
 }
 
-canvas, #timer, #score, #pickside, #displaypick {
+canvas, #timer, #score, #pickside, #displaypick, #countdown {
 	grid-column: 1;
 	grid-row: 1;
 }
@@ -56,6 +56,34 @@ canvas, #timer, #score, #pickside, #displaypick {
 #score p:last-child {
 	color: #003bff;
 }
+
+@keyframes countdown {
+	0% {opacity: 1; transform: scale(1.2)}
+	25% {opacity: 1}
+	100% {transform: scale(0.7); opacity: 0;}
+}
+
+@keyframes flash {
+	70% {opacity: 1}
+	75% {opacity: 0}
+}
+
+#countdown {
+	display: block;
+	justify-self: center;
+	align-self: center;
+	font-size: 100px;
+	opacity: 0;
+}
+
+.countdown-animation {
+	animation: countdown 1s forwards infinite;
+}
+
+.countdown-flash {
+	animation: flash 0.4s forwards infinite;
+}
+
 
 #displaypick {
 	width: 40px;

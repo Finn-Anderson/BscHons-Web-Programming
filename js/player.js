@@ -41,7 +41,6 @@ var keyBanList = [32, 65, 68];
 
 document.addEventListener("keydown", (event) => {
 	for (const key of keyBanList) {
-		console.log(key);
 		if (event.keyCode == key) {
 			event.preventDefault();
 		}
