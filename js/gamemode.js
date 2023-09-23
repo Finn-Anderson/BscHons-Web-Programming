@@ -13,6 +13,22 @@ function StartGame(team) {
 
 	SpawnBots(team);
 
+	// Spawn football
+	if (football) {
+		destroylist.push([football, easelfootball]);
+	}
+
+	football = CreateCircle(1.0, 0.2, 0.5, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
+	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
+
+	var filter = football.GetFilterData();
+	filter.categoryBits = 0x0004;
+	filter.maskBits = 0x0002;
+	filter.groupIndex = 2;
+	football.SetFilterData(filter);
+
+	stage.addChild(easelfootball);
+
 	timer_id = setInterval(SetTimer, 1000);
 }
 
@@ -50,7 +66,7 @@ function SpawnEntity(team, type) {
 		x = width - 200;
 	}
 
-	var player = CreateCircle(0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
+	var player = CreateCircle(0.0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
 	var filter = player.GetFilterData();
 	filter.categoryBits = 0x0004;
 	filter.maskBits = 0x0002;

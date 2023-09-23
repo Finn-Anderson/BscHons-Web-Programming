@@ -64,11 +64,6 @@ canvas, #timer, #score, #pickside, #displaypick {
 	margin: 24px 30px;
 }
 
-#pickside {
-	width: 1280px;
-	height: 720px;
-}
-
 #pickside button {
 	border: none;
 	width: 50%;

@@ -32,19 +32,38 @@ function ChooseTeam(team) {
 
 // Movement key listeners
 var keys = [];
+var chip = false;
+var canRun = true;
+var run = false;
+var charge = 300;
+var chargeTimer;
+var keyBanList = [32, 65, 68];
 
 document.addEventListener("keydown", (event) => {
-	if (event.key == " ") event.preventDefault();
+	for (const key of keyBanList) {
+		console.log(key);
+		if (event.keyCode == key) {
+			event.preventDefault();
+		}
+	}
 
 	if (keys.includes(event.key.toLowerCase())) return;
 
 	if (event.key == " ") Jump();
+
+	if (event.key == "Control") chip = true;
+
+	if (event.key == "Shift") run = true;
 
 	keys.push(event.key.toLowerCase());
 });
 
 document.addEventListener("keyup", (event) => {
 	var index = keys.indexOf(event.key.toLowerCase());
+
+	if (event.key == "Control") chip = false;
+
+	if (event.key == "Shift") run = false;
 
 	keys.splice(index, 1);
 });
@@ -74,6 +93,19 @@ function Jump() {
 	}
 }
 
+function AddCharge() {
+	charge += 1;
+
+	if (charge == 100) {
+		canRun = true;
+	}
+
+	if (charge == 300) {
+		clearInterval(chargeTimer);
+		chargeTimer = null;
+	}
+}
+
 function GetForce() {
 	var i = localStorage.getItem("Index");
 
@@ -90,18 +122,30 @@ function GetForce() {
 }
 
 function SetForce(player, force) {
-	if (force.x < -3 || force.x > 3) {
-		if (force.x < -3) {
-			force.x = -3;
+	var x = 3;
+	var y = 10;
+
+	if (canRun && run && force.x != 0) {
+		x *= 2;
+		charge -= 1;
+
+		if (charge == 0) canRun = false;
+	} else if (charge < 300 && !chargeTimer) {
+		chargeTimer = setInterval(AddCharge, 20);
+	}
+
+	if (force.x < -x || force.x > x) {
+		if (force.x < -x) {
+			force.x = -x;
 		} else {
-			force.x = 3;
+			force.x = x;
 		}
 	}
-	if (force.y < -10 || force.y > 10) {
-		if (force.y < -10) {
-			force.y = -10;
+	if (force.y < -y || force.y > y) {
+		if (force.y < -y) {
+			force.y = -y;
 		} else {
-			force.y = 10;
+			force.y = y;
 		}
 	}
 

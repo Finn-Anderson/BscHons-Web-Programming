@@ -39,6 +39,7 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, ob
 	return thisobj;
 }
 
+/* Drawing in bebug looks fine but the physics glitches out the player. For example, the player can go through the triangles and/or glitch down and then spring up.
 function CreateTriangle(density, friction, restitution, type, x, y, width, height, objid, angle) {
 	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
 
@@ -67,7 +68,7 @@ function CreateTriangle(density, friction, restitution, type, x, y, width, heigh
 	thisobj.GetBody().SetUserData({id:objid});
 
 	return thisobj;
-}
+}*/
 
 function CreateCircle(density, friction, restitution, type, x, y, r, objid) {
 	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
