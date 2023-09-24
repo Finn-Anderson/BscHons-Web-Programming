@@ -27,7 +27,7 @@ h2 {
 	margin-top: 24px;
 }
 
-canvas, #timer, #score, #pickside, #displaypick, #countdown {
+canvas, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
 	grid-column: 1;
 	grid-row: 1;
 }
@@ -84,12 +84,69 @@ canvas, #timer, #score, #pickside, #displaypick, #countdown {
 	animation: flash 0.4s forwards infinite;
 }
 
+#menu {
+	display: none;
+	width: 180px;
+	height: 200px;
+	background-color: #121212;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	justify-self: center;
+	align-self: center;
+	border-radius: 8px;
+	z-index: 1;
+	padding-bottom: 21px;
+}
 
-#displaypick {
+#menu button, #gameover button {
+	display: block;
+	background: none;
+	padding: 4px 12px;
+	border: 2px solid white;
+	border-radius: 4px;
+	transition: all 0.2s ease-in-out;
+}
+
+#menu h2 {
+	margin-top: 8px;
+	font-size: 32px;
+}
+
+#menu button:last-child {
+	margin-top: 16px;
+}
+
+#menu button:hover, #gameover button:hover {
+	color: #FF7F50;
+	border-color: #FF7F50;
+}
+
+#displaymenu {
 	width: 40px;
 	height: 40px;
 	justify-self: self-end;
 	margin: 24px 30px;
+}
+
+#gameover {
+	display: none;
+	justify-self: center;
+	align-self: center;
+	z-index: 1;
+}
+
+#gameover p {
+	text-align: center;
+	font-size: 27px;
+}
+
+#gameover button {
+	margin: 0 auto;
+}
+
+#pickside {
+	z-index: 1;
 }
 
 #pickside button {
@@ -164,4 +221,8 @@ input[type="radio"]::before {
 
 input[type="radio"]:checked::before {
 	transform: scale(1);
+}
+
+#bots li {
+	margin: 36px 0px;
 }

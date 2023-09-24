@@ -1,5 +1,45 @@
-function DisplayPicking() {
+function DisplayMenu() {
+	if (document.getElementById("menu").style.display == "flex") {
+		document.getElementById("menu").style.display = "none";
+	} else {
+		document.getElementById("menu").style.display = "flex";
+	}
+}
+
+function Restart() {
+	document.getElementById("gameover").style.display = "none";
+	
 	document.getElementById("pickside").style.display = "block";
+
+	if (timer_id) {
+		clearInterval(timer_id);
+
+		totalSecs = -1;
+		SetTimer();
+	}
+
+	for (var ply of players) {
+		destroylist.push(ply);
+	}
+
+	if (football) {
+		destroylist.push([football, easelfootball]);
+	}
+
+	players.length = 0;
+
+	SetTeamNum();
+
+	clearInterval(timer_id);
+	clearTimeout(timer_id);
+
+	document.getElementById("countdown").classList.remove("countdown-flash");
+	document.getElementById("countdown").classList.remove("countdown-animation");
+
+	document.getElementById("score").children[0].innerHTML = 0;
+	document.getElementById("score").children[1].innerHTML = 0;
+
+	localStorage.clear();
 }
 
 function ChooseTeam(team) {
@@ -26,7 +66,7 @@ function ChooseTeam(team) {
 	}
 
 	if (count == 1) {
-		StartGame(team);
+		StartGame();
 	}
 }
 

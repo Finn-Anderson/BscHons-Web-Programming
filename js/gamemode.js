@@ -5,15 +5,10 @@ var timer_id;
 var play;
 var canScore;
 
-function StartGame(team) {
-	if (timer_id) {
-		clearInterval(timer_id);
+function StartGame() {
+	document.getElementById("displaymenu").style.display = "block";
 
-		totalSecs = -1;
-		SetTimer();
-	}
-
-	SpawnBots(team);
+	SpawnBots();
 
 	Reset();
 }
@@ -78,28 +73,17 @@ function SpawnFootball() {
 	play = true;
 }
 
-function SpawnBots(team) {
-	for (var i = (players.length - 1); i > -1; i--) {
-		var id = players[i][0].GetBody().GetUserData().id;
-		if (id == "bot") {
-			destroylist.push(players[i]);
+function SpawnBots() {
+	var num;
 
-			players.splice(i, 1);
-
-			localStorage.setItem("Index", localStorage.getItem("Index") - 1);
-		}
-	}
-
-	var num = document.querySelector("input[name='bots']:checked").value;
-
-	if (team == "team-red") {
-		team = "team-blue";
-	} else {
-		team = "team-red";
-	}
-
+	num = document.querySelector("input[name='red-bots']:checked").value;
 	for (var i = 0; i < num; i++) {
-		SpawnEntity(team, "bot");
+		SpawnEntity("team-red", "bot");
+	}
+
+	num = document.querySelector("input[name='blue-bots']:checked").value;
+	for (var i = 0; i < num; i++) {
+		SpawnEntity("team-blue", "bot");
 	}
 }
 
@@ -161,7 +145,11 @@ function SetScore(team) {
 
 		clearInterval(timer_id);
 
-		setTimeout(Reset, 5000);
+		if (score.children[0].innerHTML == 5 || score.children[1].innerHTML == 5) {
+			timer_id = setTimeout(GameOver, 5000, team);
+		} else {
+			timer_id = setTimeout(Reset, 5000);
+		}
 	}
 }
 
@@ -179,4 +167,35 @@ function SetTimer() {
 	}
 
 	document.getElementById("timer").innerHTML = minutes + ":" + seconds;
+}
+
+function GameOver(team) {
+	document.getElementById("countdown").classList.remove("countdown-flash");
+
+	document.getElementById("displaymenu").style.display = "none";
+
+	document.getElementById("gameover").style.display = "block";
+
+	var text;
+	if (team == "team-red") {
+		text = "RED WINS";
+	} else {
+		text = "BLUE WINS";
+	}
+
+	document.getElementById("gameover").children[0].innerHTML = text;
+
+	var localTeam = localStorage.getItem("Team");
+
+	var goals = document.getElementById("score").children;
+	var teamNum = document.getElementsByClassName("capacity");
+
+	var score = 0;
+	if (localTeam == "team-red") {
+		score = (1000 * goals[0].innerHTML / teamNum[0].innerHTML / (goals[1].innerHTML + 1) - totalSecs) * teamNum[1].innerHTML;
+	} else {
+		score = (1000 * goals[1].innerHTML / teamNum[1].innerHTML / (goals[0].innerHTML + 1) - totalSecs) * teamNum[0].innerHTML;
+	}
+
+	document.getElementById("gameover").children[1].innerHTML = "Score: " + Math.trunc(score);
 }

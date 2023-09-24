@@ -30,7 +30,19 @@
 
 		<p id="countdown">3</p>
 
-		<button id="displaypick" onclick="DisplayPicking()"></button>
+		<button id="displaymenu" onclick="DisplayMenu()"></button>
+
+		<div id="menu">
+			<h2>Menu</h2>
+			<button onclick="DisplayMenu()">Resume</button>
+			<button id="displaypick" onclick="DisplayMenu(); Restart()">Restart</button>
+		</div>
+
+		<div id="gameover">
+			<h1></h1>
+			<p></p>
+			<button id="displaypick" onclick="Restart()">Restart</button>
+		</div>
 
 		<div id="pickside">
 			<button id="redteam" onclick="ChooseTeam('team-red')">
@@ -45,28 +57,49 @@
 	</div>
 
 	<div id="bots">
-		<h2> Number of Bots</h2>
+		<h2>Red Team Bots</h2>
 		<div>
-			<input type="radio" id="0" name="bots" value="0" checked>
-			<label for="0">0</label>
+			<input type="radio" id="red-0" name="red-bots" value="0" checked>
+			<label for="red-0">0</label>
 		</div>
 
 		<div>
-			<input type="radio" id="1" name="bots" value="1">
-			<label for="1">1</label>
+			<input type="radio" id="red-1" name="red-bots" value="1">
+			<label for="red-1">1</label>
 		</div>
 
 		<div>
-			<input type="radio" id="2" name="bots" value="2">
-			<label for="2">2</label>
+			<input type="radio" id="red-2" name="red-bots" value="2">
+			<label for="red-2">2</label>
 		</div>
 
 		<div>
-			<input type="radio" id="3" name="bots" value="3">
-			<label for="3">3</label>
+			<input type="radio" id="red-3" name="red-bots" value="3">
+			<label for="red-3">3</label>
 		</div>
 
-		<p>Respawn to get bots</p>
+		<h2>Blue Team Bots</h2>
+		<div>
+			<input type="radio" id="blue-0" name="blue-bots" value="0" checked>
+			<label for="blue-0">0</label>
+		</div>
+
+		<div>
+			<input type="radio" id="blue-1" name="blue-bots" value="1">
+			<label for="blue-1">1</label>
+		</div>
+
+		<div>
+			<input type="radio" id="blue-2" name="blue-bots" value="2">
+			<label for="blue-2">2</label>
+		</div>
+
+		<div>
+			<input type="radio" id="blue-3" name="blue-bots" value="3">
+			<label for="blue-3">3</label>
+		</div>
+
+		<li>Restart to apply bots</li>
 	</div>
 
 	<div id="controls">
