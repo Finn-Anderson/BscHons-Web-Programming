@@ -131,34 +131,35 @@ function tick(e) {
 
 	if (play) {
 		Movement();
+
+		Kick();
 	}
 }
 
+var contacts = [];
 var listener = new Box2D.Dynamics.b2ContactListener;
 listener.BeginContact = function(contact) {
 	var obj1 = contact.GetFixtureA().GetBody();
 	var obj2 = contact.GetFixtureB().GetBody();
 
 	if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-		var pV = obj1.GetLinearVelocity();
-		var bV = obj2.GetLinearVelocity();
-		
-		var pos = new b2Vec2((obj1.GetPosition().x - obj2.GetPosition().x), (obj1.GetPosition().y - obj2.GetPosition().y));
+		contacts.push(obj2);
 
-		bV.x = -pos.x * Math.abs(pV.x) * 2;
-		bV.y = pos.y * Math.abs(pV.y) * 4;
-
-		if (chip) {
-			if (bV.y == 0) {
-				bV.y -= 15;
-			}
-		}
+		localStorage.setItem("contact", contacts.indexOf(obj2));
 	} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
 		if (obj1.GetUserData().id == "redGoal") {
 			SetScore("team-blue");
 		} else {
 			SetScore("team-red");
 		}
+	}
+}
+listener.EndContact = function(contact) {
+	var obj1 = contact.GetFixtureA().GetBody();
+	var obj2 = contact.GetFixtureB().GetBody();
+
+	if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
+		localStorage.removeItem("contact");
 	}
 }
 this.world.SetContactListener(listener);

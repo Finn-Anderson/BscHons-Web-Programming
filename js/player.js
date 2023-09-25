@@ -6,42 +6,6 @@ function DisplayMenu() {
 	}
 }
 
-function Restart() {
-	document.getElementById("gameover").style.display = "none";
-	
-	document.getElementById("pickside").style.display = "block";
-
-	if (timer_id) {
-		clearInterval(timer_id);
-
-		totalSecs = -1;
-		SetTimer();
-	}
-
-	for (var ply of players) {
-		destroylist.push(ply);
-	}
-
-	if (football) {
-		destroylist.push([football, easelfootball]);
-	}
-
-	players.length = 0;
-
-	SetTeamNum();
-
-	clearInterval(timer_id);
-	clearTimeout(timer_id);
-
-	document.getElementById("countdown").classList.remove("countdown-flash");
-	document.getElementById("countdown").classList.remove("countdown-animation");
-
-	document.getElementById("score").children[0].innerHTML = 0;
-	document.getElementById("score").children[1].innerHTML = 0;
-
-	localStorage.clear();
-}
-
 function ChooseTeam(team) {
 	document.getElementById("pickside").style.display = "none";
 
@@ -142,6 +106,29 @@ function AddCharge() {
 	if (charge == 300) {
 		clearInterval(chargeTimer);
 		chargeTimer = null;
+	}
+}
+
+function Kick() {
+	var ball = contacts[localStorage.getItem("contact")];
+	if (ball) {
+		var [player, force] = GetForce();
+		var bV = ball.GetLinearVelocity();
+		
+		var pos = new b2Vec2((ball.GetPosition().x - player.GetBody().GetPosition().x), (ball.GetPosition().y - player.GetBody().GetPosition().y));
+
+		var finalV = Math.sqrt((Math.pow(force.x, 2)) + Math.pow(force.y, 2));
+
+		bV.x = pos.x * finalV;
+		bV.y = pos.y * finalV;
+
+		if (pos.y > 0.7 && pos.y < 1.1) {
+			bV.y *= -3;
+		}
+
+		if (chip) {
+			bV.y -= 15;
+		}
 	}
 }
 
