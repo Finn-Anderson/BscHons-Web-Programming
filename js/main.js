@@ -40,7 +40,7 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, ob
 	return thisobj;
 }
 
-/* Drawing in bebug looks fine but the physics glitches out the player. For example, the player can go through the triangles and/or glitch down and then spring up.
+/* Drawing in bebug looks fine but the physics glitches out the player. For example, the player can go through the triangles and/or glitch down and then spring up. I originally wanted to use this to add a slope so the ball would not get stuck on top of the crossbar.
 function CreateTriangle(density, friction, restitution, type, x, y, width, height, objid, angle) {
 	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, objid);
 

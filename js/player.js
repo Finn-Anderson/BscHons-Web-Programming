@@ -1,179 +1,58 @@
-function DisplayMenu() {
-	if (document.getElementById("menu").style.display == "flex") {
-		document.getElementById("menu").style.display = "none";
-	} else {
-		document.getElementById("menu").style.display = "flex";
-	}
-}
+class Player extends Actor {
+	constructor(team, type) {
+		super(team, type);
 
-function ChooseTeam(team) {
-	document.getElementById("pickside").style.display = "none";
+		// Movement key listeners
+		this.keys = [];
+		this.keyBanList = [32, 65, 68];
 
-	if (players[localStorage.getItem("Index")]) {
-		var ply = players[localStorage.getItem("Index")];
-
-		destroylist.push(ply);
-
-		players.splice(localStorage.getItem("Index"), 1);
+		document.addEventListener("keydown", this.onKeyDown.bind(this));
+		document.addEventListener("keyup", this.onKeyUp.bind(this));
 	}
 
-	var player = SpawnEntity(team, "player");
-
-	localStorage.setItem("Index", players.length - 1);
-
-	localStorage.setItem("Team", team);
-
-	var count = 0;
-	for (var i in players) {
-		var id = players[i][0].GetBody().GetUserData().id;
-		if (id == "player") count++;
-	}
-
-	if (count == 1) {
-		StartGame();
-	}
-}
-
-// Movement key listeners
-var keys = [];
-var chip = false;
-var canRun = true;
-var run = false;
-var charge = 300;
-var chargeTimer;
-var keyBanList = [32, 65, 68];
-
-document.addEventListener("keydown", (event) => {
-	for (const key of keyBanList) {
-		if (event.keyCode == key) {
-			event.preventDefault();
-		}
-	}
-
-	if (keys.includes(event.key.toLowerCase())) return;
-
-	if (event.key == " ") Jump();
-
-	if (event.key == "Control") chip = true;
-
-	if (event.key == "Shift") run = true;
-
-	keys.push(event.key.toLowerCase());
-});
-
-document.addEventListener("keyup", (event) => {
-	var index = keys.indexOf(event.key.toLowerCase());
-
-	if (event.key == "Control") chip = false;
-
-	if (event.key == "Shift") run = false;
-
-	keys.splice(index, 1);
-});
-
-function Movement() {
-	var [player, force] = GetForce();
-
-	if (keys.length > 0 && player && force) {
-		if (keys.includes("d")) {
-			force.x += 1.0;
-		} 
-		if (keys.includes("a")) {
-			force.x -= 1.0;
+	onKeyDown(event) {
+		for (const key of this.keyBanList) {
+			if (event.keyCode == key) {
+				event.preventDefault();
+			}
 		}
 
-		SetForce(player, force);
-	}
-}
+		if (this.keys.includes(event.key.toLowerCase())) return;
 
-function Jump() {
-	var [player, force] = GetForce();
+		if (event.key == " ") this.jump();
 
-	if (player && force) {
-		force.y -= 10.0;
+		if (event.key == "Control") this.chip = true;
 
-		SetForce(player, force);
-	}
-}
-
-function AddCharge() {
-	charge += 1;
-
-	if (charge == 100) {
-		canRun = true;
-	}
-
-	if (charge == 300) {
-		clearInterval(chargeTimer);
-		chargeTimer = null;
-	}
-}
-
-function Kick() {
-	var ball = contacts[localStorage.getItem("contact")];
-	if (ball) {
-		var [player, force] = GetForce();
-		var bV = ball.GetLinearVelocity();
+		if (event.key == "Shift") this.run = true;
 		
-		var pos = new b2Vec2((ball.GetPosition().x - player.GetBody().GetPosition().x), (ball.GetPosition().y - player.GetBody().GetPosition().y));
-
-		var finalV = Math.sqrt((Math.pow(force.x, 2)) + Math.pow(force.y, 2));
-
-		bV.x = pos.x * finalV;
-		bV.y = pos.y * finalV;
-
-		if (pos.y > 0.7 && pos.y < 1.1) {
-			bV.y *= -3;
-		}
-
-		if (chip) {
-			bV.y -= 15;
-		}
-	}
-}
-
-function GetForce() {
-	var i = localStorage.getItem("Index");
-
-	var force;
-	var player;
-	if (i) {
-		player = players[i][0];
-
-		var velocity = player.GetBody().GetLinearVelocity();
-		force = velocity;
+		this.keys.push(event.key.toLowerCase());
 	}
 
-	return [player, force];
-}
+	onKeyUp(event) {
+		var index = this.keys.indexOf(event.key.toLowerCase());
 
-function SetForce(player, force) {
-	var x = 3;
-	var y = 10;
+		if (event.key == "Control") this.chip = false;
 
-	if (canRun && run && force.x != 0) {
-		x *= 2;
-		charge -= 1;
+		if (event.key == "Shift") this.run = false;
 
-		if (charge == 0) canRun = false;
-	} else if (charge < 300 && !chargeTimer) {
-		chargeTimer = setInterval(AddCharge, 20);
-	}
-
-	if (force.x < -x || force.x > x) {
-		if (force.x < -x) {
-			force.x = -x;
-		} else {
-			force.x = x;
-		}
-	}
-	if (force.y < -y || force.y > y) {
-		if (force.y < -y) {
-			force.y = -y;
-		} else {
-			force.y = y;
+		if (index > -1) {
+			this.keys.splice(index, 1);
 		}
 	}
 
-	player.GetBody().ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0)); // used to wake up player object and apply the set velocity
+
+	movement() {
+		var force = this.force;
+
+		if (this.keys.length > 0) {
+			if (this.keys.includes("d")) {
+				force.x += 1.0;
+			} 
+			if (this.keys.includes("a")) {
+				force.x -= 1.0;
+			}
+
+			this.force = force;
+		}
+	}
 }

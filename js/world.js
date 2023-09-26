@@ -98,7 +98,11 @@ function tick(e) {
 	for(var obj of destroylist) {
 		stage.removeChild(obj[1]);
 
-		world.DestroyBody(obj[0].GetBody());
+		if (obj[0] instanceof Actor) {
+			world.DestroyBody(obj[0].body);
+		} else {
+			world.DestroyBody(obj[0].GetBody());
+		}
 	}
 	destroylist.length = 0;
 
@@ -116,23 +120,23 @@ function tick(e) {
 		}
 	}
 
-	for (var i in players) {
-		players[i][1].x = players[i][0].GetBody().GetPosition().x * scale;
-		players[i][1].y = players[i][0].GetBody().GetPosition().y * scale;
-		players[i][1].rotation = players[i][0].GetBody().GetAngle() * (180 / Math.PI);
-
-		if (players[i][1].x < -20 || players[i][1].x > (width + 20)) {
-			players[i][0].GetBody().SetPosition(new b2Vec2(200, (height - 300)));
-			players[i][1].x = players[i][0].GetBody().GetPosition().x * scale;
-		}
+	for (var actor of actors) {
+		actor[1].x = actor[0].body.GetPosition().x * scale;
+		actor[1].y = actor[0].body.GetPosition().y * scale;
+		actor[1].rotation = actor[0].body.GetAngle() * (180 / Math.PI);
 	}
 
 	stage.update(e);
 
 	if (play) {
-		Movement();
+		for (var actor of actors) {
+			if (actor[0].body.GetUserData().id == "player") {
+				actor[0].movement();
 
-		Kick();
+				actor[0].kick();
+			}
+		}
+		
 	}
 }
 

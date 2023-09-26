@@ -1,5 +1,5 @@
 // Declaration of variables to be used in the gamemode
-var players = [];
+var actors = [];
 var totalSecs = 0;
 var timer_id;
 var play;
@@ -14,17 +14,18 @@ function StartGame() {
 }
 
 function Reset() {
-	for (var ply of players) {
+	for (var actor of actors) {
 		var x;
 		var y = (height - 300) / scale;
-		if (ply[2] == "team-red") {
+		if (actor[2] == "team-red") {
 			x = 200 / scale;
 		} else {
 			x = (width - 200) / scale;
 		}
-		ply[0].GetBody().SetLinearVelocity(new b2Vec2 (0, 0));
-		ply[0].GetBody().SetPosition(new b2Vec2 (x, y));
-		ply[0].GetBody().ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
+		actor[0].body.SetLinearVelocity(new b2Vec2 (0, 0));
+		actor[0].body.SetPosition(new b2Vec2 (x, y));
+		actor[0].body.ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
+		actor[0].charge = 300;
 	}
 
 	play = false;
@@ -52,15 +53,15 @@ function Restart() {
 		SetTimer();
 	}
 
-	for (var ply of players) {
-		destroylist.push(ply);
+	for (var actor of actors) {
+		destroylist.push(actor);
 	}
 
 	if (football) {
 		destroylist.push([football, easelfootball]);
 	}
 
-	players.length = 0;
+	actors.length = 0;
 
 	SetTeamNum();
 
@@ -94,6 +95,34 @@ function Countdown() {
 	}
 }
 
+function ChooseTeam(team) {
+	document.getElementById("pickside").style.display = "none";
+
+	if (actors[localStorage.getItem("Index")]) {
+		var ply = actors[localStorage.getItem("Index")];
+
+		destroylist.push(ply);
+
+		actors.splice(localStorage.getItem("Index"), 1);
+	}
+
+	var player = new Player(team, "player");
+
+	localStorage.setItem("Index", actors.length - 1);
+
+	localStorage.setItem("Team", team);
+
+	var count = 0;
+	for (var actor of actors) {
+		var id = actor[0].body.GetUserData().id;
+		if (id == "player") count++;
+	}
+
+	if (count == 1) {
+		StartGame();
+	}
+}
+
 function SpawnFootball() {
 	football = CreateCircle(1.0, 0.2, 0.5, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
 	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
@@ -114,47 +143,21 @@ function SpawnBots() {
 
 	num = document.querySelector("input[name='red-bots']:checked").value;
 	for (var i = 0; i < num; i++) {
-		SpawnEntity("team-red", "bot");
+		new AI("team-red", "bot");
 	}
 
 	num = document.querySelector("input[name='blue-bots']:checked").value;
 	for (var i = 0; i < num; i++) {
-		SpawnEntity("team-blue", "bot");
+		new AI("team-blue", "bot");
 	}
-}
-
-function SpawnEntity(team, type) {
-	var x;
-	if (team == "team-red") {
-		x = 200;
-	} else {
-		x = width - 200;
-	}
-
-	var player = CreateCircle(0.0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
-	var filter = player.GetFilterData();
-	filter.categoryBits = 0x0004;
-	filter.maskBits = 0x0002;
-	filter.groupIndex = 2;
-	player.SetFilterData(filter);
-
-	var easelPlayer = CreateBitmap(loader.getResult(team), 20, 20);
-
-	stage.addChild(easelPlayer);
-
-	players.push([player, easelPlayer, team]);
-
-	SetTeamNum();
-
-	return player;
 }
 
 function SetTeamNum() {
 	var redNum = 0;
 	var blueNum = 0;
 
-	for (var ply of players) {
-		if (ply[2] == "team-red") {
+	for (var actor of actors) {
+		if (actor[2] == "team-red") {
 			redNum++;
 		} else {
 			blueNum++;
@@ -203,6 +206,14 @@ function SetTimer() {
 	}
 
 	document.getElementById("timer").innerHTML = minutes + ":" + seconds;
+}
+
+function DisplayMenu() {
+	if (document.getElementById("menu").style.display == "flex") {
+		document.getElementById("menu").style.display = "none";
+	} else {
+		document.getElementById("menu").style.display = "flex";
+	}
 }
 
 function GameOver(team) {
