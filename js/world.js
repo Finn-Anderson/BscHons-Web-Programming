@@ -20,11 +20,11 @@ var rightWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width - 1), heig
 
 // Create goal posts
 var redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, "redPost", false);
-var redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 200), 62, 6, "redCrossbar", false);
+var redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 200), 62, 6, "crossbar", false);
 var redGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 30, (height - 95), 38, 100, "redGoal", true);
 
 var bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), height, 60, 200, "bluePost", false);
-var blueCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 200), 62, 6, "blueCrossbar", false);
+var blueCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 200), 62, 6, "crossbar", false);
 var blueGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 30), (height - 95), 38, 100, "blueGoal", true);
 
 // Define football to use later
@@ -130,40 +130,63 @@ function tick(e) {
 
 	if (play) {
 		for (var actor of actors) {
-			if (actor[0].body.GetUserData().id == "player") {
-				actor[0].movement();
+			actor[0].movement();
 
-				actor[0].kick();
-			}
+			actor[0].kick();
 		}
 		
 	}
 }
 
-var contacts = [];
 var listener = new Box2D.Dynamics.b2ContactListener;
 listener.BeginContact = function(contact) {
-	var obj1 = contact.GetFixtureA().GetBody();
-	var obj2 = contact.GetFixtureB().GetBody();
+	var obj1;
+	var obj2;
+	if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
+		obj1 = contact.GetFixtureB().GetBody();
+		obj2 = contact.GetFixtureA().GetBody();
+	} else {
+		obj1 = contact.GetFixtureA().GetBody();
+		obj2 = contact.GetFixtureB().GetBody();
+	}
 
 	if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-		contacts.push(obj2);
-
-		localStorage.setItem("contact", contacts.indexOf(obj2));
+		for (var actor of actors) {
+			if (actor[0].body == obj1) {
+				actor[0].contact = obj2;
+			}
+		}
 	} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
 		if (obj1.GetUserData().id == "redGoal") {
 			SetScore("team-blue");
 		} else {
 			SetScore("team-red");
 		}
+	} else if ((obj2.GetUserData().id == "player" || obj2.GetUserData().id == "bot") && (obj1.GetUserData().id == "ground" || obj1.GetUserData().id == "crossbar")) {
+		for (var actor of actors) {
+			if (actor[0].body == obj2) {
+				actor[0].jumpCount = 0;
+			}
+		}
 	}
 }
 listener.EndContact = function(contact) {
-	var obj1 = contact.GetFixtureA().GetBody();
-	var obj2 = contact.GetFixtureB().GetBody();
+	var obj1;
+	var obj2;
+	if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
+		obj1 = contact.GetFixtureB().GetBody();
+		obj2 = contact.GetFixtureA().GetBody();
+	} else {
+		obj1 = contact.GetFixtureA().GetBody();
+		obj2 = contact.GetFixtureB().GetBody();
+	}
 
 	if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-		localStorage.removeItem("contact");
+		for (var actor of actors) {
+			if (actor[0].body == obj1) {
+				actor[0].contact = null;
+			}
+		}
 	}
 }
 this.world.SetContactListener(listener);

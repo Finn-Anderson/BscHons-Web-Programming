@@ -40,7 +40,6 @@ class Player extends Actor {
 		}
 	}
 
-
 	movement() {
 		var force = this.force;
 

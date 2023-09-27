@@ -5,7 +5,12 @@ class Actor {
 		this.canRun = true;
 		this.run = false;
 		this.runCharge = 300;
-		this.chargeTimer;
+		this.chargeTimer = null;
+		this.jumpCount = 0;
+
+		this.team = team;
+
+		this.contact = null;
 
 		this.body = this.spawn(team, type);
 	}
@@ -37,22 +42,25 @@ class Actor {
 	}
 
 	jump() {
-		var force = this.force;
+		if (this.jumpCount < 2) {
+			var force = this.force;
 
-		if (force) {
-			force.y -= 10.0;
+			if (force) {
+				force.y -= 10.0;
 
-			this.force = force;
+				this.jumpCount++;
+
+				this.force = force;
+			}
 		}
 	}
 
 	kick() {
-		var ball = contacts[localStorage.getItem("contact")];
-		if (ball) {
+		if (this.contact) {
 			var force = this.force;
-			var bV = ball.GetLinearVelocity();
+			var bV = this.contact.GetLinearVelocity();
 			
-			var pos = new b2Vec2((ball.GetPosition().x - this.body.GetPosition().x), (ball.GetPosition().y - this.body.GetPosition().y));
+			var pos = new b2Vec2((this.contact.GetPosition().x - this.body.GetPosition().x), (this.contact.GetPosition().y - this.body.GetPosition().y));
 
 			var finalV = Math.hypot(force.x, force.y) * 1.5;
 
@@ -60,7 +68,6 @@ class Actor {
 			bV.y = pos.y * finalV;
 
 			if (this.chip) {
-				console.log(bV.x);
 				bV.y = Math.min(Math.max(bV.x, -4), 4) * 4;
 			}
 		}
