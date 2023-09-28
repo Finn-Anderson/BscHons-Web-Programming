@@ -2,7 +2,7 @@ body {
 	display: grid;
 	grid-template-columns: [line1] auto [line2] auto [line3] auto [line4];
 	grid-template-rows: [row1] auto [row2] auto [row3];
-	height: 100vh;
+	min-height: 100vh;
 	margin: 0px;
 	justify-content: center;
 	background-color: #121212;
@@ -183,8 +183,8 @@ canvas, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
 	background-color: rgba(0, 59, 255, 0.75);
 }
 
-#controls, #bots {
-	width: 100%;
+#controls, #bots, #difficulty {
+	width: 426.77px;
 	text-align: center;
 }
 
@@ -199,7 +199,7 @@ canvas, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
 	padding: 34px 12px 8px 12px;
 }
 
-input[type="radio"] {
+#bots input[type="radio"] {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -211,7 +211,7 @@ input[type="radio"] {
 	margin: 12px auto 6px auto;
 }
 
-input[type="radio"]::before {
+#bots input[type="radio"]::before {
 	content: "";
 	position: absolute;
 	width: 0.65em;
@@ -222,10 +222,32 @@ input[type="radio"]::before {
 	box-shadow: inset 1em 1em #FF7F50;
 }
 
-input[type="radio"]:checked::before {
+#bots input[type="radio"]:checked::before {
 	transform: scale(1);
 }
 
-#bots li {
+#difficulty input[type="radio"] {
+	display: none;
+}
+
+#difficulty label {
+	display: block;
+	background-color: #222;
+	padding: 8px 12px;
+	margin: 8px 125px;
+	border: 2px solid #222;
+	border-radius: 4px;
+	transition: all 0.2s ease-in-out;
+}
+
+#difficulty input[type="radio"]:checked ~ label {
+	border: 2px solid #FF7F50;
+	color: #FF7F50;
+}
+
+li {
+	grid-column-start: line2;
+	grid-column-end: span line3;
+	justify-self: center;
 	margin: 36px 0px;
 }
