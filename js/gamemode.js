@@ -237,12 +237,16 @@ function GameOver(team) {
 	var goals = document.getElementById("score").children;
 	var teamNum = document.getElementsByClassName("capacity");
 
-	var score = 0;
+	var positive = 0;
+	var negative = 1;
 	if (localTeam == "team-red") {
-		score = (1000 * goals[0].innerHTML / teamNum[0].innerHTML / (goals[1].innerHTML + 1) - totalSecs) * teamNum[1].innerHTML;
+		positive = 1000 * goals[0].innerHTML * teamNum[1].innerHTML;
+		negative = teamNum[0].innerHTML * (goals[1].innerHTML + 1);
 	} else {
-		score = (1000 * goals[1].innerHTML / teamNum[1].innerHTML / (goals[0].innerHTML + 1) - totalSecs) * teamNum[0].innerHTML;
+		positive = 1000 * goals[1].innerHTML * teamNum[0].innerHTML;
+		negative = teamNum[1].innerHTML * (goals[0].innerHTML + 1);
 	}
+	var score = positive / negative - totalSecs;
 
 	document.getElementById("gameover").children[1].innerHTML = "Score: " + Math.trunc(score);
 }

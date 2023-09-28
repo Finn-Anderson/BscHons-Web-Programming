@@ -73,6 +73,22 @@ class Actor {
 		}
 	}
 
+	get contact() {
+		return this._contact;
+	}
+
+	set contact(contact) {
+		this._contact = contact;
+	}
+
+	get jumpCount() {
+		return this._jumpCount;
+	}
+
+	set jumpCount(count) {
+		this._jumpCount = count;
+	}
+
 	get charge() {
 		return this.runCharge;
 	}
