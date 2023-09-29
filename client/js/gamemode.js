@@ -241,7 +241,7 @@ function GameOver(team) {
 	var negative = 1;
 	if (localTeam == "team-red") {
 		positive = 1000 * goals[0].innerHTML * teamNum[1].innerHTML;
-		negative = teamNum[0].innerHTML * (goals[1].innerHTML + 1);
+		negative = teamNum[0].innerHTML * (Number(goals[1].innerHTML) + 1);
 	} else {
 		positive = 1000 * goals[1].innerHTML * teamNum[0].innerHTML;
 		negative = teamNum[1].innerHTML * (goals[0].innerHTML + 1);
