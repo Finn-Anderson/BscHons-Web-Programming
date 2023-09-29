@@ -246,6 +246,7 @@ function GameOver(team) {
 		positive = 1000 * goals[1].innerHTML * teamNum[0].innerHTML;
 		negative = teamNum[1].innerHTML * (goals[0].innerHTML + 1);
 	}
+
 	var score = positive / negative - totalSecs;
 
 	document.getElementById("gameover").children[1].innerHTML = "Score: " + Math.trunc(score);

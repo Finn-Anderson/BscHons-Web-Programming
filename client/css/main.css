@@ -10,7 +10,7 @@ body {
 
 body, button {
 	font-family: "Lato", "Arial", sans-serif;
-	font-size: 24px;
+	font-size: 18px;
 	color: white;
 }
 
@@ -18,7 +18,15 @@ button {
 	cursor: pointer;
 }
 
-h2 {
+h2, table caption, #pickside p {
+	font-size: 24px;
+}
+
+li, table th {
+	font-size: 20px;
+}
+
+h2, table caption {
 	text-decoration: underline;
 }
 
@@ -234,7 +242,7 @@ canvas, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
 	display: block;
 	background-color: #222;
 	padding: 8px 12px;
-	margin: 8px 125px;
+	margin: 8px 140px;
 	border: 2px solid #222;
 	border-radius: 4px;
 	transition: all 0.2s ease-in-out;
@@ -250,4 +258,28 @@ li {
 	grid-column-end: span line3;
 	justify-self: center;
 	margin: 36px 0px;
+}
+
+table {
+	grid-row-start: line3;
+	grid-column-start: line2;
+	grid-column-end: span line3;
+	border-collapse: collapse;
+	margin-bottom: 36px;
+}
+
+table caption {
+	margin-bottom: 24px;
+	text-decoration: underline;
+}
+
+table th {
+	border-bottom: 2px solid white;
+	padding-bottom: 8px;
+}
+
+table td {
+	text-align: center;
+	color: #c2c2c2;
+	padding: 8px 0px;
 }

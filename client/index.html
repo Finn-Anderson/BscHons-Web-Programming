@@ -5,11 +5,14 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&family=Roboto:wght@700&display=swap" rel="stylesheet">
 
+	<link rel="shortcut icon" href="#">
+
 	<link rel="stylesheet" href="css/main.css">
 
 	<script src="libraries/Box2dWeb-2.1.a.3.min.js" defer></script>
 	<script src="libraries/easel.min.js" defer></script>
 	<script src="libraries/preload.min.js" defer></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
 
 	<script src="js/declarations.js" defer></script>
 	<script src="js/world.js" defer></script>
@@ -17,6 +20,7 @@
 	<script src="js/actor.js" defer></script>
 	<script src="js/player.js" defer></script>
 	<script src="js/ai.js" defer></script>
+	<script src="js/ajax.js" defer></script>
 </head>
 <body>
 	<div id="game">
@@ -105,22 +109,22 @@
 	<div id="difficulty">
 		<h2>Difficulty</h2>
 		<div>
-			<input type="radio" id="easy" name="difficulty" value="600" checked>
+			<input type="radio" id="easy" name="difficulty" value="600" onchange="populateLeaderboard(this.id)" checked>
 			<label for="easy">Easy</label>
 		</div>
 
 		<div>
-			<input type="radio" id="normal" name="difficulty" value="400">
+			<input type="radio" id="normal" name="difficulty" value="400" onchange="populateLeaderboard(this.id)">
 			<label for="normal">Normal</label>
 		</div>
 
 		<div>
-			<input type="radio" id="hard" name="difficulty" value="200">
+			<input type="radio" id="hard" name="difficulty" value="200" onchange="populateLeaderboard(this.id)">
 			<label for="hard">Hard</label>
 		</div>
 
 		<div>
-			<input type="radio" id="very-hard" name="difficulty" value="0">
+			<input type="radio" id="very-hard" name="difficulty" value="0" onchange="populateLeaderboard(this.id)">
 			<label for="very-hard">Very Hard</label>
 		</div>
 	</div>
@@ -134,5 +138,15 @@
 	</div>
 
 	<li>Restart to apply bots and difficulty</li>
+
+	<table>
+		<caption>Leaderboard - Easy</caption>
+		<thead>
+			<tr>
+				<th>Name</th>
+				<th>Score</th>
+			</tr>
+		</thead>
+	</table>
 </body>
 </html>
