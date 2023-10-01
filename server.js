@@ -1,14 +1,29 @@
-var fs = require("fs");
-var host = "127.0.0.1";
-var port = 8000;
-var express = require("express");
+const fs = require("fs");
+const host = "127.0.0.1";
+const port = 8000;
+const express = require("express");
+const axios = require('axios');
+const session = require('express-session');
 
-var app = express();
-app.use(express.static(__dirname + "/client")); //use static files in ROOT/src folder
+const app = express(); // Use static files in ROOT/client folder
 
-app.get("/", function(request, response) { //root dir
-	response.sendFile(__dirname + "/client/index.html");
-})
+app.use(session({
+	secret: "<W,Z6Y*XuJ~A/4V43'Y/wL]H/+idbvNwA)Ko_N_meIUYb9n6B3",
+	resave: false,
+	saveUninitialized: false,
+}))
+
+app.get("/", function(request, response) { // Root dir
+	if (request.session.auth && Math.floor(Date.now() / 1000) < request.session.auth.expire) {
+		response.sendFile(__dirname + "/client/index.html");
+	} else {
+		let state = null;
+		let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/userinfo.profile&access_type=offline&include_granted_scopes=true&response_type=code&state=state_parameter_passthrough_value&redirect_uri=http%3A//localhost:8000/callback&client_id=927810064757-bbtcb0ee7uet4bh2p7uegrns2hfs6tjo.apps.googleusercontent.com";
+
+		response.writeHead(302, { "Location": authUrl });
+		response.end();
+	}
+});
 
 app.get("/requestdata", function(request, response) {
 	var obj = new Object();
@@ -38,7 +53,7 @@ app.get("/requestdata", function(request, response) {
 			}
 
 			send();
-		})
+		});
 
 		function send() {
 			var json = JSON.stringify(obj);
@@ -48,10 +63,11 @@ app.get("/requestdata", function(request, response) {
 			con.end();
 		}
 	});
-})
+});
 
 app.get("/senddata", function(request, response) {
-	var name = request.query.name;
+	var id = request.session.auth.id;
+	var name = request.session.auth.name;
 	var score = request.query.score;
 	var difficulty = request.query.difficulty;
 
@@ -67,16 +83,64 @@ app.get("/senddata", function(request, response) {
 	con.connect(function(error) {
 		if (error) throw error;
 
-		var leaderboardSelect = "INSERT INTO leaderboard (name, score, difficulty) VALUES ?";
-		con.query(leaderboardSelect, [name, score, difficulty], function(error, result) {
+		var leaderboardSelect = "SELECT id FROM leaderboard WHERE id = ?";
+		con.query(leaderboardSelect, [id], function(error, result) {
 			if (error) throw error;
 
-			for (var i = 0; i < result.length; i++) {
-				obj.name.push(result[i].name);
-				obj.score.push(result[i].score);
+			if (result.length == 0) {
+				var leaderboardInsert = "INSERT INTO leaderboard (id, name, score, difficulty) VALUES ?";
+				con.query(leaderboardInsert, [id, name, score, difficulty], function(error, result) {
+					if (error) throw error;
+				});
+			} else {
+				var leaderboardUpdate = "UPDATE leaderboard SET score = ? WHERE id = ? AND difficulty = ?";
+				con.query(leaderboardUpdate, [score, id, difficulty], function(error, result) {
+					if (error) throw error;
+				});
 			}
-		})
+		});
 	});
-})
+});
+
+app.get("/callback*", function(request, response) {
+	if (!request.query.error) {
+		const data = {
+			client_id: "927810064757-bbtcb0ee7uet4bh2p7uegrns2hfs6tjo.apps.googleusercontent.com",
+			client_secret: "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",
+			code: request.query.code,
+			grant_type: "authorization_code",
+			redirect_uri: "http://localhost:8000/callback",
+		};
+
+		axios.post("https://oauth2.googleapis.com/token", data)
+			.then((res) => {
+				request.session.auth = {
+					token: res.data.access_token,
+					expire: Math.floor(Date.now() / 1000) + res.data.expires_in,
+				};
+
+				axios.get("https://www.googleapis.com/oauth2/v2/userinfo", { headers: {"Authorization" : `Bearer ${res.data.access_token}`} })
+				.then((res) => {
+					request.session.auth.id = res.data.id;
+					request.session.auth.name = res.data.name;
+
+					response.writeHead(302, { "Location": "/" });
+					response.end();
+				}).catch((error) => {
+					console.error(error);
+
+					response.status(400);
+					response.send("User info error");
+				});
+			}).catch((error) => {
+				console.error(error);
+
+				response.status(400);
+				response.send("Auth error");
+			});
+	}
+});
+
+app.use(express.static(__dirname + "/client"));
 
 app.listen(port, host);

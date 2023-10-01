@@ -36,11 +36,11 @@ function populateLeaderboard(difficulty) {
 	});
 }
 
-function submitScore(name, score, difficulty) {
+function submitScore(score, difficulty) {
 	$.ajax({
 		url: "/senddata",
 		type: "get",
-		data: {name: name, score: score, difficulty: difficulty},
+		data: {score: score, difficulty: difficulty},
 	})
 	.done(function(json) {
 		populateLeaderboard(difficulty);
