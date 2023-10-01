@@ -134,7 +134,6 @@ function tick(e) {
 
 			actor[0].kick();
 		}
-		
 	}
 }
 

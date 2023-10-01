@@ -14,15 +14,7 @@ app.use(session({
 }))
 
 app.get("/", function(request, response) { // Root dir
-	if (request.session.auth && Math.floor(Date.now() / 1000) < request.session.auth.expire) {
-		response.sendFile(__dirname + "/client/index.html");
-	} else {
-		let state = null;
-		let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/userinfo.profile&access_type=offline&include_granted_scopes=true&response_type=code&state=state_parameter_passthrough_value&redirect_uri=http%3A//localhost:8000/callback&client_id=927810064757-bbtcb0ee7uet4bh2p7uegrns2hfs6tjo.apps.googleusercontent.com";
-
-		response.writeHead(302, { "Location": authUrl });
-		response.end();
-	}
+	response.sendFile(__dirname + "/client/index.html");
 });
 
 app.get("/requestdata", function(request, response) {
@@ -43,7 +35,7 @@ app.get("/requestdata", function(request, response) {
 	con.connect(function(error) {
 		if (error) throw error;
 
-		var leaderboardSelect = "SELECT * FROM leaderboard WHERE difficulty = ? ORDER BY score DESC limit 10";
+		var leaderboardSelect = "SELECT name, score FROM leaderboard WHERE difficulty = ? ORDER BY score DESC limit 10";
 		con.query(leaderboardSelect, [request.query.difficulty], function(error, result) {
 			if (error) throw error;
 
@@ -83,23 +75,47 @@ app.get("/senddata", function(request, response) {
 	con.connect(function(error) {
 		if (error) throw error;
 
-		var leaderboardSelect = "SELECT id FROM leaderboard WHERE id = ?";
+		var leaderboardSelect = "SELECT score FROM leaderboard WHERE id = ?";
 		con.query(leaderboardSelect, [id], function(error, result) {
 			if (error) throw error;
 
 			if (result.length == 0) {
-				var leaderboardInsert = "INSERT INTO leaderboard (id, name, score, difficulty) VALUES ?";
+				var leaderboardInsert = "INSERT INTO leaderboard (id, name, score, difficulty) VALUES (?, ?, ?, ?)";
 				con.query(leaderboardInsert, [id, name, score, difficulty], function(error, result) {
 					if (error) throw error;
+
+					send();
 				});
-			} else {
+			} else if (score > result[0].score) {
 				var leaderboardUpdate = "UPDATE leaderboard SET score = ? WHERE id = ? AND difficulty = ?";
 				con.query(leaderboardUpdate, [score, id, difficulty], function(error, result) {
 					if (error) throw error;
+
+					send();
 				});
+			} else {
+				send();
 			}
 		});
 	});
+
+	function send() {
+		response.send();
+
+		con.end();
+	}
+});
+
+app.get("/authorise", function(request, response) {
+	if (request.session.auth && Math.floor(Date.now() / 1000) < request.session.auth.expire) {
+		response.sendFile(__dirname + "/client/index.html");
+	} else {
+		let state = null;
+		let authUrl = "https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/userinfo.profile&access_type=offline&include_granted_scopes=true&response_type=code&state=state_parameter_passthrough_value&redirect_uri=http%3A//localhost:8000/callback&client_id=927810064757-bbtcb0ee7uet4bh2p7uegrns2hfs6tjo.apps.googleusercontent.com";
+
+		response.writeHead(302, { "Location": authUrl });
+		response.end();
+	}
 });
 
 app.get("/callback*", function(request, response) {
@@ -139,6 +155,19 @@ app.get("/callback*", function(request, response) {
 				response.send("Auth error");
 			});
 	}
+});
+
+app.get("/checkauth", function(request, response) {
+	var obj = new Object();
+	obj.auth = false;
+
+	if (request.session.auth && Math.floor(Date.now() / 1000) < request.session.auth.expire) {
+		obj.auth = true;
+	}
+
+	var json = JSON.stringify(obj);
+
+	response.send(json);
 });
 
 app.use(express.static(__dirname + "/client"));

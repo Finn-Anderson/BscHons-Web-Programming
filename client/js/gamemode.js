@@ -4,6 +4,8 @@ var totalSecs = 0;
 var timer_id;
 var play;
 var canScore;
+var finalDifficulty;
+var finalScore;
 
 function StartGame() {
 	document.getElementById("displaymenu").style.display = "block";
@@ -11,6 +13,8 @@ function StartGame() {
 	SpawnBots();
 
 	Reset();
+
+	finalDifficulty = document.querySelector("input[name='difficulty']:checked").id;
 }
 
 function Reset() {
@@ -247,7 +251,7 @@ function GameOver(team) {
 		negative = teamNum[1].innerHTML * (goals[0].innerHTML + 1);
 	}
 
-	var score = positive / negative - totalSecs;
+	finalScore = Math.trunc(positive / negative - totalSecs);
 
-	document.getElementById("gameover").children[1].innerHTML = "Score: " + Math.trunc(score);
+	document.getElementById("gameover").children[1].innerHTML = "Score: " + finalScore;
 }

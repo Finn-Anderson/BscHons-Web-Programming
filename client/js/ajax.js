@@ -37,14 +37,40 @@ function populateLeaderboard(difficulty) {
 }
 
 function submitScore(score, difficulty) {
+	document.getElementById("submit").remove();
 	$.ajax({
 		url: "/senddata",
 		type: "get",
 		data: {score: score, difficulty: difficulty},
 	})
-	.done(function(json) {
+	.done(function() {
 		populateLeaderboard(difficulty);
 	});
 }
 
+function checkAuth() {
+	$.ajax({
+		url: "/checkauth",
+		type: "get",
+	})
+	.done(function(json) {
+		const data = JSON.parse(json);
+
+		if (data.auth) {
+			document.getElementById("login").style.display = "none";
+
+			var parent = document.getElementById("gameover");
+
+			var button = document.createElement("button");
+			button.innerHTML = "Submit Score";
+			button.style.marginTop = "24px";
+			button.id = "submit";
+			button.onclick = function() {submitScore(finalScore, finalDifficulty)};
+
+			parent.appendChild(button);
+		}
+	});
+}
+
+checkAuth();
 populateLeaderboard(document.querySelector("input[name='difficulty']:checked").id);

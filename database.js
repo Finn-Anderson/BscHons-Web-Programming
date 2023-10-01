@@ -11,7 +11,7 @@ var con = mysql.createConnection({
 con.connect(function(error) {
 	if (error) throw error;
 
-	var leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard (name VARCHAR(255) PRIMARY KEY, score SMALLINT, difficulty ENUM('easy', 'normal', 'hard', 'very-hard'))";
+	var leaderboard = "CREATE TABLE IF NOT EXISTS leaderboard (id VARCHAR(255) PRIMARY KEY, name VARCHAR(255), score SMALLINT, difficulty ENUM('easy', 'normal', 'hard', 'very-hard'))";
 	con.query(leaderboard, function(error, result) {
 		if (error) throw error;
 

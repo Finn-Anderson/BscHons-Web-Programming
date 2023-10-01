@@ -23,6 +23,13 @@
 	<script src="js/ajax.js" defer></script>
 </head>
 <body>
+	<div id="login">
+		<div>
+			<h1>Login</h1>
+			<button id="google" onclick="location.href = 'http://localhost:8000/authorise'">Google</button>
+			<button id="guest" onclick="document.getElementById('login').style.display = 'none'">Continue as Guest</button>
+		</div>
+	</div>
 	<div id="game">
 		<canvas>
 		</canvas>
@@ -39,7 +46,7 @@
 		<button id="displaymenu" onclick="DisplayMenu()"></button>
 
 		<div id="menu">
-			<h2>Menu</h2>
+			<h1>Menu</h1>
 			<button onclick="DisplayMenu()">Resume</button>
 			<button id="displaypick" onclick="DisplayMenu(); Restart()">Restart</button>
 		</div>
