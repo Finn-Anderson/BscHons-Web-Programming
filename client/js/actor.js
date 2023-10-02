@@ -70,6 +70,10 @@ class Actor {
 			if (this.chip) {
 				bV.y = Math.min(Math.max(bV.x, -4), 4) * 4;
 			}
+
+			if (playAudio) {
+				document.getElementById("audioKick").play();
+			}
 		}
 	}
 

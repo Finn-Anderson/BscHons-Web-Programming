@@ -9,6 +9,34 @@
 
 	<link rel="stylesheet" href="css/main.css">
 
+	<audio id="audioKick">
+		<source src="audio/kick.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioClap1">
+		<source src="audio/clap1.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioClap2">
+		<source src="audio/clap3.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioClap3">
+		<source src="audio/clap3.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioClap4">
+		<source src="audio/clap4.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioClap5">
+		<source src="audio/clap5.wav" type="audio/wav">
+	</audio>
+
+	<audio id="audioGameOver">
+		<source src="audio/gameover.wav" type="audio/wav">
+	</audio>
+
 	<script src="libraries/Box2dWeb-2.1.a.3.min.js" defer></script>
 	<script src="libraries/easel.min.js" defer></script>
 	<script src="libraries/preload.min.js" defer></script>
@@ -49,6 +77,7 @@
 			<h1>Menu</h1>
 			<button onclick="DisplayMenu()">Resume</button>
 			<button id="displaypick" onclick="DisplayMenu(); Restart()">Restart</button>
+			<button id="audioBtn" onclick="SetAudio()">Mute</button>
 		</div>
 
 		<div id="gameover">

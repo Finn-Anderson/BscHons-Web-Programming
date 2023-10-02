@@ -59,15 +59,7 @@ function checkAuth() {
 		if (data.auth) {
 			document.getElementById("login").style.display = "none";
 
-			var parent = document.getElementById("gameover");
-
-			var button = document.createElement("button");
-			button.innerHTML = "Submit Score";
-			button.style.marginTop = "24px";
-			button.id = "submit";
-			button.onclick = function() {submitScore(finalScore, finalDifficulty)};
-
-			parent.appendChild(button);
+			showSubmit = true;
 		}
 	});
 }

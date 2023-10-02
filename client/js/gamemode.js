@@ -6,6 +6,8 @@ var play;
 var canScore;
 var finalDifficulty;
 var finalScore;
+var showSubmit = false;
+var playAudio = true;
 
 function StartGame() {
 	document.getElementById("displaymenu").style.display = "block";
@@ -186,6 +188,14 @@ function SetScore(team) {
 		document.getElementById("countdown").innerHTML = "GOAL!!!";
 		document.getElementById("countdown").classList.add("countdown-flash");
 
+		if (playAudio) {
+			document.getElementById("audioClap1").play();
+			document.getElementById("audioClap2").play();
+			document.getElementById("audioClap3").play();
+			document.getElementById("audioClap4").play();
+			document.getElementById("audioClap5").play();
+		}
+
 		clearInterval(timer_id);
 
 		if (score.children[0].innerHTML == 5 || score.children[1].innerHTML == 5) {
@@ -220,12 +230,37 @@ function DisplayMenu() {
 	}
 }
 
+function SetAudio() {
+	playAudio = !playAudio;
+
+	const button = document.getElementById("audioBtn");
+	if (playAudio) {
+		button.innerHTML = "Mute";
+	} else {
+		button.innerHTML = "Unmute";
+	}
+}
+
 function GameOver(team) {
+	if (showSubmit) {
+		var button = document.createElement("button");
+		button.innerHTML = "Submit Score";
+		button.style.marginTop = "24px";
+		button.id = "submit";
+		button.onclick = function() {submitScore(finalScore, finalDifficulty)};
+
+		document.getElementById("gameover").appendChild(button);
+	}
+
 	document.getElementById("countdown").classList.remove("countdown-flash");
 
 	document.getElementById("displaymenu").style.display = "none";
 
 	document.getElementById("gameover").style.display = "block";
+
+	if (playAudio) {
+		document.getElementById("audioGameOver").play();
+	}
 
 	var text;
 	if (team == "team-red") {
