@@ -10,7 +10,7 @@ npm install
 node server.js
 ```
 
-Then launch on it to run. You will need NodeJS installed.
+Then launch the .bat file to run the server. You will need NodeJS installed.
 
 You can access the page via http://localhost:8000.
 
