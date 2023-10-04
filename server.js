@@ -75,8 +75,8 @@ app.get("/senddata", function(request, response) {
 	con.connect(function(error) {
 		if (error) throw error;
 
-		var leaderboardSelect = "SELECT score FROM leaderboard WHERE id = ?";
-		con.query(leaderboardSelect, [id], function(error, result) {
+		var leaderboardSelect = "SELECT score FROM leaderboard WHERE id = ? AND difficulty = ?";
+		con.query(leaderboardSelect, [id, difficulty], function(error, result) {
 			if (error) throw error;
 
 			if (result.length == 0) {
