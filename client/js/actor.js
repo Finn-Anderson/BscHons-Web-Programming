@@ -68,7 +68,9 @@ class Actor {
 			bV.y = pos.y * finalV;
 
 			if (this.chip) {
-				bV.y = Math.min(Math.max(bV.x, -4), 4) * 4;
+				bV.y = -Math.abs(Math.min(Math.max(bV.x, -4), 4) * 4);
+
+				console.log(bV.y);
 			}
 
 			if (playAudio) {
