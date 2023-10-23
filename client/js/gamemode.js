@@ -189,11 +189,9 @@ function SetScore(team) {
 		document.getElementById("countdown").classList.add("countdown-flash");
 
 		if (playAudio) {
-			document.getElementById("audioClap1").play();
-			document.getElementById("audioClap2").play();
-			document.getElementById("audioClap3").play();
-			document.getElementById("audioClap4").play();
-			document.getElementById("audioClap5").play();
+			var audio = document.getElementById("audioGoal");
+			audio.volume = 0.5;
+			audio.play();
 		}
 
 		clearInterval(timer_id);
@@ -259,7 +257,9 @@ function GameOver(team) {
 	document.getElementById("gameover").style.display = "block";
 
 	if (playAudio) {
-		document.getElementById("audioGameOver").play();
+		var audio = document.getElementById("audioGameOver");
+		audio.volume = 0.7;
+		audio.play();
 	}
 
 	var text;
