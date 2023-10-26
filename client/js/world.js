@@ -126,21 +126,21 @@ function tick(e) {
 		actor[1].rotation = actor[0].body.GetAngle() * (180 / Math.PI);
 	}
 
-	stage.update(e);
-
 	if (play) {
 		for (var actor of actors) {
 			actor[0].movement();
-
-			actor[0].kick();
 		}
 	}
+
+	stage.update(e);
 }
 
 var listener = new Box2D.Dynamics.b2ContactListener;
 listener.BeginContact = function(contact) {
 	var obj1;
 	var obj2;
+
+	// Make sure obj2 is football for if statements
 	if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
 		obj1 = contact.GetFixtureB().GetBody();
 		obj2 = contact.GetFixtureA().GetBody();
@@ -153,6 +153,8 @@ listener.BeginContact = function(contact) {
 		for (var actor of actors) {
 			if (actor[0].body == obj1) {
 				actor[0].contact = obj2;
+
+				actor[0].kick();
 			}
 		}
 	} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
@@ -172,6 +174,8 @@ listener.BeginContact = function(contact) {
 listener.EndContact = function(contact) {
 	var obj1;
 	var obj2;
+
+	// Make sure obj2 is football for if statements
 	if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
 		obj1 = contact.GetFixtureB().GetBody();
 		obj2 = contact.GetFixtureA().GetBody();

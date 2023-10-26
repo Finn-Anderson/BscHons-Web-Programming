@@ -56,21 +56,22 @@ class Actor {
 	}
 
 	kick() {
-		if (this.contact) {
-			var force = this.force;
-			var bV = this.contact.GetLinearVelocity();
-			
-			var pos = new b2Vec2((this.contact.GetPosition().x - this.body.GetPosition().x), (this.contact.GetPosition().y - this.body.GetPosition().y));
+		if (!this.contact) return;
 
-			var finalV = Math.hypot(force.x, force.y) * 1.5;
+		var force = this.force;
+
+		var finalV = Math.hypot(force.x, force.y) * 1.2;
+
+		if (finalV > 0) {
+			var bV = this.contact.GetLinearVelocity();
+		
+			var pos = new b2Vec2((this.contact.GetPosition().x - this.body.GetPosition().x), (this.contact.GetPosition().y - this.body.GetPosition().y));
 
 			bV.x = pos.x * finalV;
 			bV.y = pos.y * finalV;
 
 			if (this.chip) {
-				bV.y = -Math.abs(Math.min(Math.max(bV.x, -4), 4) * 4);
-
-				console.log(bV.y);
+				bV.y = -Math.abs(Math.min(Math.max(bV.x * 2, -16), 16));
 			}
 
 			if (playAudio) {
