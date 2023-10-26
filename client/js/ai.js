@@ -9,6 +9,7 @@ class AI extends Actor {
 	movement() {
 		var force = this.force;
 
+		// Get new command based on reaction time set by difficulty
 		if (!this.reactTimer) {
 			this.command.length = 0;
 
@@ -17,17 +18,20 @@ class AI extends Actor {
 			var x = this.body.GetPosition().x - ballLoc.x;
 			var y = this.body.GetPosition().y - ballLoc.y;
 
+			// Direction of opposition goal
 			var dX = 1;
 			if (this.team == "team-red") {
 				dX = -1;
 			}
 
+			// Go in direction of opposition goal
 			if (x < dX) {
 				this.command.push("Right");
 			} else {
 				this.command.push("Left");
 			}
 
+			// Makes sure bots don't own goal. Bots jump over ball if it's on ground and close to them
 			if (x < 2 && x > 0) {
 				if (this.team == "team-blue" && y > 1) {
 					this.command.push("Jump");
@@ -51,6 +55,7 @@ class AI extends Actor {
 			}, this.reaction);
 		}
 
+		// Execute command
 		if (this.command.includes("Right")) {
 			force.x += 1.0;
 		} else if (this.command.includes("Left")) {

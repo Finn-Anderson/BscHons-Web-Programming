@@ -4,8 +4,8 @@ class Actor {
 		this.chip = false;
 		this.canRun = true;
 		this.run = false;
-		this.runCharge = 300;
-		this.chargeTimer = null;
+		this.stamina = 300;
+		this.staminaTimer = null;
 		this.jumpCount = 0;
 
 		this.team = team;
@@ -15,6 +15,11 @@ class Actor {
 		this.body = this.spawn(team, type);
 	}
 
+	/**
+	 * Spawns the actor body and appends to actor array.
+	 * - `team` (String) is the team the actor belongs to.
+	 * - `type` (String) is whether it is bot or player.
+	 */
 	spawn(team, type) {
 		var x;
 		if (team == "team-red") {
@@ -60,18 +65,21 @@ class Actor {
 
 		var force = this.force;
 
+		// Makes sure kicking ball is not glued to the player by multiplying player movement force by 1.2
 		var finalV = Math.hypot(force.x, force.y) * 1.2;
 
 		if (finalV > 0) {
 			var bV = this.contact.GetLinearVelocity();
 		
+			// Get contact position of player and ball
 			var pos = new b2Vec2((this.contact.GetPosition().x - this.body.GetPosition().x), (this.contact.GetPosition().y - this.body.GetPosition().y));
 
 			bV.x = pos.x * finalV;
 			bV.y = pos.y * finalV;
 
 			if (this.chip) {
-				bV.y = -Math.abs(Math.min(Math.max(bV.x * 2, -16), 16));
+				// Moves ball vertically by twice horizontal speed with limits. 
+				bV.y = -Math.min(Math.abs(bV.x) * 2, 16);
 			}
 
 			if (playAudio) {
@@ -96,23 +104,28 @@ class Actor {
 		this._jumpCount = count;
 	}
 
-	get charge() {
-		return this.runCharge;
+	get stamina() {
+		return this._stamina;
 	}
 
-	set charge(value) {
-		this.runCharge += value;
-		this.runCharge = Math.min(Math.max(this.runCharge, 0), 300);
+	set stamina(value) {
+		if (value == 300) {
+			this._stamina = value;
+			return;
+		}
 
-		if (this.charge == 0) {
+		this._stamina += value;
+		this._stamina = Math.min(Math.max(this._stamina, 0), 300);
+
+		if (this.stamina == 0) {
 			this.canRun = false;
-		} else if (this.charge >= 100) {
+		} else if (this.stamina >= 100) {
 			this.canRun = true;
 		} 
 
-		if (this.charge == 300) {
-			clearInterval(this.chargeTimer);
-			this.chargeTimer = null;
+		if (this.stamina == 300) {
+			clearInterval(this.staminaTimer);
+			this.staminaTimer = null;
 		}
 	}
 
@@ -126,15 +139,17 @@ class Actor {
 		var x = 3;
 		var y = 10;
 
+		// Check if to run or to recharge stamina
 		if (this.canRun && this.run && force.x != 0) {
 			x *= 2;
-			this.charge = -1;
-		} else if (this.charge < 300 && !this.chargeTimer) {
-			this.chargeTimer = setInterval(() => {
-				this.charge = 1;
+			this.stamina = -1;
+		} else if (this.stamina < 300 && !this.staminaTimer) {
+			this.staminaTimer = setInterval(() => {
+				this.stamina = 1;
 			}, 20);
 		}
 
+		// Apply x and y force of player for movement
 		if (force.x < -x || force.x > x) {
 			if (force.x < -x) {
 				force.x = -x;
