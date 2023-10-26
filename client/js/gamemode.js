@@ -242,10 +242,13 @@ function SetAudio() {
 function GameOver(team) {
 	if (showSubmit) {
 		var button = document.createElement("button");
+		button.classList.add("submitScoreButton"); 
 		button.innerHTML = "Submit Score";
 		button.style.marginTop = "24px";
 		button.id = "submit";
 		button.onclick = function() {submitScore(finalScore, finalDifficulty)};
+
+		document.querySelectorAll(".submitScoreButton").forEach(e => e.remove());
 
 		document.getElementById("gameover").appendChild(button);
 	}
