@@ -86,6 +86,10 @@ class Actor {
 				document.getElementById("audioKick").play();
 			}
 		}
+
+		// Log last to kick ball before goal for zoom-in effect
+		var data = this.contact.GetUserData();
+		data.last = this.body;
 	}
 
 	get contact() {

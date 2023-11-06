@@ -95,9 +95,18 @@ h2, table caption {
 	margin-top: 24px;
 }
 
-canvas, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
+#viewport, #timer, #score, #pickside, #displaymenu, #countdown, #menu, #gameover {
 	grid-column: 1;
 	grid-row: 1;
+}
+
+#viewport {
+	overflow: hidden;
+}
+
+canvas {
+	position: relative;
+	z-index: -1;
 }
 
 #timer {

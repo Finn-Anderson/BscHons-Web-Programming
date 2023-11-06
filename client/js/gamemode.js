@@ -34,6 +34,11 @@ function Reset() {
 		actor[0].charge = 300;
 	}
 
+	var canvas = document.getElementsByTagName("canvas")[0];
+	canvas.style.transform = "scale(1.0)";
+	canvas.style.left = 0;
+	canvas.style.top = 0;
+
 	play = false;
 
 	document.getElementById("countdown").classList.remove("countdown-flash");
@@ -202,6 +207,16 @@ function SetScore(team) {
 			timer_id = setTimeout(Reset, 5000);
 		}
 	}
+}
+
+function ZoomIntoScorer(data) {
+	var canvas = document.getElementsByTagName("canvas")[0];
+	canvas.style.transform = "scale(1.5)";
+	canvas.style.left = -data.last.GetPosition().x * scale + (width / 2) + "px";
+	canvas.style.top = -data.last.GetPosition().y * scale + (height / 2) + "px";
+
+	console.log(data.last.GetPosition().x * scale);
+	console.log(data.last.GetPosition().y * scale);
 }
 
 function SetTimer() {

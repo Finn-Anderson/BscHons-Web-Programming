@@ -4,6 +4,9 @@ var width = 1280;
 var height = 540;
 var scale = 30;
 
+document.getElementById("viewport").width = width;
+document.getElementById("viewport").height = height;
+
 document.getElementsByTagName("canvas")[0].width = width;
 document.getElementsByTagName("canvas")[0].height = height;
 
@@ -32,7 +35,7 @@ var easelfootball;
 var football;
 
 // Allow football to go through posts
-var filter = ground.GetFilterData(); // Getting any object that must collide with the player and football would do.
+var filter = ground.GetFilterData(); // Set collision of any object that must collide with the player and football.
 filter.categoryBits = 0x0002;
 filter.maskBits = 0x0004;
 filter.groupIndex = 8;
@@ -129,6 +132,10 @@ function tick(e) {
 	if (play) {
 		for (var actor of actors) {
 			actor[0].movement();
+		}
+
+		if (!canScore) {
+			ZoomIntoScorer(football.GetBody().GetUserData());
 		}
 	}
 
