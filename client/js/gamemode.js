@@ -214,9 +214,6 @@ function ZoomIntoScorer(data) {
 	canvas.style.transform = "scale(1.5)";
 	canvas.style.left = -data.last.GetPosition().x * scale + (width / 2) + "px";
 	canvas.style.top = -data.last.GetPosition().y * scale + (height / 2) + "px";
-
-	console.log(data.last.GetPosition().x * scale);
-	console.log(data.last.GetPosition().y * scale);
 }
 
 function SetTimer() {
