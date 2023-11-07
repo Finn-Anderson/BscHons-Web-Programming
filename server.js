@@ -172,4 +172,24 @@ app.get("/checkauth", function(request, response) {
 
 app.use(express.static(__dirname + "/client"));
 
-app.listen(port, host);
+Error.stackTraceLimit = Infinity;
+
+const server = app.listen(port, host);
+const io = require("socket.io")(server);
+
+const physics = require("./physics")(io);
+let world = physics.init();
+
+io.on("connection", function(socket) {
+	socket.emit("load", (response) => {
+		if (response.status == "complete") {
+			var node = world.GetBodyList();
+
+			while (node.GetNext()) {
+				socket.emit("add", node.GetUserData(), node.GetPosition(), node.GetAngle(), (response) => { physics.add(node, response); });
+
+				node = node.GetNext();
+			}
+		}
+	});
+});
