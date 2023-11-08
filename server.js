@@ -177,7 +177,9 @@ Error.stackTraceLimit = Infinity;
 const server = app.listen(port, host);
 const io = require("socket.io")(server);
 
-const physics = require("./physics")(io);
+const gamemode = require("./gamemode.js")(io); 
+
+const physics = require("./physics")(io, gamemode);
 let world = physics.init();
 
 io.on("connection", function(socket) {
@@ -191,5 +193,20 @@ io.on("connection", function(socket) {
 				node = node.GetNext();
 			}
 		}
+	});
+
+	//
+	// HTML DOM broadcasting actions
+	//
+	socket.on("difficulty", (value) => {
+		gamemode.setDifficulty(value);
+
+		socket.broadcast.emit("difficulty", value);
+	});
+
+	socket.on("botNum", (team, value) => {
+		gamemode.setBotNum(team, value);
+
+		socket.broadcast.emit("botNum", team, value);
 	});
 });

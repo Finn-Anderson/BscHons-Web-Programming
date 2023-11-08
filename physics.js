@@ -1,4 +1,5 @@
 let io;
+let gamemode
 
 //
 // Box2dWeb definitions for use in the game.
@@ -71,7 +72,6 @@ function CreateCircle(density, friction, restitution, type, x, y, r, angle, obji
 //
 // Physics Engine code.
 //
-const gamemode = require("./gamemode.js"); 
 
 // Defining canvas and world
 let width = 1280;
@@ -239,7 +239,9 @@ function initialiseContacts() {
 	world.SetContactListener(listener);
 }
 
-module.exports = function(ioIn) {
+module.exports = function(ioIn, gamemodeIn) {
 	io = ioIn;
+	gamemode = gamemodeIn;
+
 	return {init, add};
 }

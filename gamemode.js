@@ -1,13 +1,29 @@
+let io;
+
 // Declaration of variables to be used in the gamemode
-var actors = [];
-var totalSecs = 0;
-var timer_id;
-var play;
-var canScore;
-var finalDifficulty;
-var finalScore;
-var showSubmit = false;
-var playAudio = true;
+let actors = [];
+let totalSecs = 0;
+let timer_id;
+let play;
+let canScore;
+let finalScore;
+let showSubmit = false;
+let playAudio = true;
+
+let difficulty;
+let botNum = {blue: 0, red: 0};
+
+function setDifficulty(value) {
+	difficulty
+}
+
+function setBotNum(team, value) {
+	if (team == "red-bots") {
+		botNum.red = value;
+	} else {
+		botNum.blue = value;
+	}
+}
 
 function StartGame() {
 	document.getElementById("displaymenu").style.display = "block";
@@ -15,8 +31,6 @@ function StartGame() {
 	SpawnBots();
 
 	Reset();
-
-	finalDifficulty = document.querySelector("input[name='difficulty']:checked").id;
 }
 
 function Reset() {
@@ -304,4 +318,9 @@ function GameOver(team) {
 	finalScore = Math.trunc(positive / negative - totalSecs);
 
 	document.getElementById("gameover").children[1].innerHTML = "Score: " + finalScore;
+}
+
+module.exports = function(ioIn) {
+	io = ioIn;
+	return {setDifficulty, setBotNum, play};
 }

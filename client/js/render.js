@@ -42,8 +42,8 @@ let scale = 30;
 
 let socket = io();
 
-document.getElementById("viewport").width = width;
-document.getElementById("viewport").height = height;
+document.getElementById("viewport").style.width = width + "px";
+document.getElementById("viewport").style.height = height + "px";
 
 document.getElementsByTagName("canvas")[0].width = width;
 document.getElementsByTagName("canvas")[0].height = height;
@@ -65,19 +65,25 @@ socket.on("load", (callback) => {
 		callback({status: "complete"});
 	});
 	loader.loadManifest(manifest, true, "./assets/");
-
-	createjs.Ticker.framerate = 60;
-	createjs.Ticker.timingMode = createjs.Ticker.RAF;
-	createjs.Ticker.addEventListener("tick", tick);
 });
 
 socket.on("tick", (DynamicBodiesList) => {
 	stage.update();
 
+	var list = stage.children;
+
 	for (var actor of DynamicBodiesList) {
-		actor[1].x = actor.GetPosition().x * scale;
-		actor[1].y = actor.GetPosition().y * scale;
-		actor[1].rotation = actor.GetAngle() * (180 / Math.PI);
+		for (var element of list) {
+			if (actor.GetUserData().render == element.id) {
+				element.x = actor.GetPosition().x * scale;
+				element.y = actor.GetPosition().y * scale;
+				element.rotation = actor.GetAngle() * (180 / Math.PI);
+
+				list.splice(list.indexOf(element), 1);
+
+				break;
+			}
+		}
 	}
 });
 
@@ -109,6 +115,45 @@ socket.on("add", (userdata, position, angle, callback) => {
 
 socket.on("remove", (obj) => {
 	stage.removeChild(obj);
+});
+
+//
+// HTML DOM actions and responses
+//
+function setDifficulty(value) {
+	socket.emit("difficulty", value);
+
+	populateLeaderboard(value);
+}
+
+socket.on("difficulty", (value) => {
+	const btnList = document.querySelectorAll("input[name='difficulty']");
+
+	for (var e of btnList) {
+		if (e.id == value) {
+			e.checked = true;
+
+			break;
+		}
+	}
+
+	populateLeaderboard(value);
+});
+
+function setBotsNum(team, value) {
+	socket.emit("botNum", team, value);
+}
+
+socket.on("botNum", (team, value) => {
+	const btnList = document.querySelectorAll("input[name='"+ team +"']");
+
+	for (var e of btnList) {
+		if (e.value == value) {
+			e.checked = true;
+
+			break;
+		}
+	}
 });
 
 //

@@ -84,43 +84,43 @@
 	<div id="bots">
 		<h2>Red Team Bots</h2>
 		<div>
-			<input type="radio" id="red-0" name="red-bots" value="0" checked>
+			<input type="radio" id="red-0" name="red-bots" value="0" onclick="setBotsNum(this.name, this.value)" checked>
 			<label for="red-0">0</label>
 		</div>
 
 		<div>
-			<input type="radio" id="red-1" name="red-bots" value="1">
+			<input type="radio" id="red-1" name="red-bots" value="1" onclick="setBotsNum(this.name, this.value)">
 			<label for="red-1">1</label>
 		</div>
 
 		<div>
-			<input type="radio" id="red-2" name="red-bots" value="2">
+			<input type="radio" id="red-2" name="red-bots" value="2" onclick="setBotsNum(this.name, this.value)">
 			<label for="red-2">2</label>
 		</div>
 
 		<div>
-			<input type="radio" id="red-3" name="red-bots" value="3">
+			<input type="radio" id="red-3" name="red-bots" value="3" onclick="setBotsNum(this.name, this.value)">
 			<label for="red-3">3</label>
 		</div>
 
 		<h2>Blue Team Bots</h2>
 		<div>
-			<input type="radio" id="blue-0" name="blue-bots" value="0" checked>
+			<input type="radio" id="blue-0" name="blue-bots" value="0" onclick="setBotsNum(this.name, this.value)" checked>
 			<label for="blue-0">0</label>
 		</div>
 
 		<div>
-			<input type="radio" id="blue-1" name="blue-bots" value="1">
+			<input type="radio" id="blue-1" name="blue-bots" value="1" onclick="setBotsNum(this.name, this.value)">
 			<label for="blue-1">1</label>
 		</div>
 
 		<div>
-			<input type="radio" id="blue-2" name="blue-bots" value="2">
+			<input type="radio" id="blue-2" name="blue-bots" value="2" onclick="setBotsNum(this.name, this.value)">
 			<label for="blue-2">2</label>
 		</div>
 
 		<div>
-			<input type="radio" id="blue-3" name="blue-bots" value="3">
+			<input type="radio" id="blue-3" name="blue-bots" value="3" onclick="setBotsNum(this.name, this.value)">
 			<label for="blue-3">3</label>
 		</div>
 	</div>
@@ -128,22 +128,22 @@
 	<div id="difficulty">
 		<h2>Difficulty</h2>
 		<div>
-			<input type="radio" id="easy" name="difficulty" value="600" onchange="populateLeaderboard(this.id)" checked>
+			<input type="radio" id="easy" name="difficulty" value="600" onclick="setDifficulty(this.id)" checked>
 			<label for="easy">Easy</label>
 		</div>
 
 		<div>
-			<input type="radio" id="normal" name="difficulty" value="400" onchange="populateLeaderboard(this.id)">
+			<input type="radio" id="normal" name="difficulty" value="400" onclick="setDifficulty(this.id)">
 			<label for="normal">Normal</label>
 		</div>
 
 		<div>
-			<input type="radio" id="hard" name="difficulty" value="200" onchange="populateLeaderboard(this.id)">
+			<input type="radio" id="hard" name="difficulty" value="200" onclick="setDifficulty(this.id)">
 			<label for="hard">Hard</label>
 		</div>
 
 		<div>
-			<input type="radio" id="very-hard" name="difficulty" value="0" onchange="populateLeaderboard(this.id)">
+			<input type="radio" id="very-hard" name="difficulty" value="0" onclick="setDifficulty(this.id)">
 			<label for="very-hard">Very Hard</label>
 		</div>
 	</div>
