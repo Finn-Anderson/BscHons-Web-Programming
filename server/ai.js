@@ -1,8 +1,11 @@
+let physics;
+class Actor {}
+
 class AI extends Actor {
-	constructor(team, type) {
+	constructor(team, type, difficulty) {
 		super(team, type);
 
-		this.reaction = document.querySelector("input[name='difficulty']:checked").value;
+		this.reaction = difficulty;
 		this.command = [];
 	}
 
@@ -80,4 +83,11 @@ class AI extends Actor {
 	set reaction(time) {
 		this.reactionTime = time;
 	}
+}
+
+module.exports = function(actorIn, physicsIn) {
+	Actor = actorIn;
+	physics = physicsIn;
+
+	return {AI};
 }

@@ -28,22 +28,21 @@ class Actor {
 			x = width - 200;
 		}
 
-		var actor = CreateCircle(0.0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
-		var filter = actor.GetFilterData();
+		var a = physics.CreateCircle(0.0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
+		var filter = a.GetFilterData();
 		filter.categoryBits = 0x0004;
 		filter.maskBits = 0x0002;
 		filter.groupIndex = 2;
-		actor.SetFilterData(filter);
+		a.SetFilterData(filter);
 
-		var easelPlayer = CreateBitmap(loader.getResult(team), 20, 20);
+		a.GetUserData();
+		a.actor = actor;
 
-		stage.addChild(easelPlayer);
+		dynamicList.push(a);
 
-		actors.push([this, easelPlayer, team]);
+		setTeamNum();
 
-		SetTeamNum();
-
-		return actor.GetBody();
+		return a;
 	}
 
 	jump() {
@@ -171,4 +170,8 @@ class Actor {
 
 		this.body.ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0)); // used to wake up player object and apply the set velocity
 	}
+}
+
+module.exports = function() {
+	return {Actor};
 }

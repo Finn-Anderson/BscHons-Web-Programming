@@ -1,3 +1,6 @@
+let physics;
+class Actor {}
+
 class Player extends Actor {
 	constructor(team, type) {
 		super(team, type);
@@ -54,4 +57,11 @@ class Player extends Actor {
 			this.force = force;
 		}
 	}
+}
+
+module.exports = function(actorIn, physicsIn) {
+	Actor = actorIn;
+	physics = physicsIn;
+
+	return {Player};
 }

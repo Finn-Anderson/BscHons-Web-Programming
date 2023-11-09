@@ -48,9 +48,6 @@ document.getElementById("viewport").style.height = height + "px";
 document.getElementsByTagName("canvas")[0].width = width;
 document.getElementsByTagName("canvas")[0].height = height;
 
-// Define football to use later
-let easelfootball;
-
 // Load images
 let loader;
 socket.on("load", (callback) => {
@@ -115,11 +112,17 @@ socket.on("add", (userdata, position, angle, callback) => {
 
 socket.on("remove", (obj) => {
 	stage.removeChild(obj);
+
+	stage.update();
 });
 
 //
 // HTML DOM actions and responses
 //
+
+// Declaration of variables
+let playAudio = true;
+
 function setDifficulty(value) {
 	socket.emit("difficulty", value);
 
@@ -156,7 +159,58 @@ socket.on("botNum", (team, value) => {
 	}
 });
 
+function chooseTeam(team) {
+	document.getElementById("pickside").style.display = "none";
+
+	socket.emit("chooseTeam", team);
+}
+
+socket.on("visualisePlayer", (team, index) => {
+	var easelPlayer = CreateBitmap(loader.getResult(team), 20, 20);
+
+	localStorage.setItem("Index", index);
+});
+
+function displayMenu() {
+	if (document.getElementById("menu").style.display == "flex") {
+		document.getElementById("menu").style.display = "none";
+	} else {
+		document.getElementById("menu").style.display = "flex";
+	}
+}
+
+function restart() {
+	socket.emit("restart");
+}
+
+socket.on("restart", () => {
+	document.getElementById("gameover").style.display = "none";
+	
+	document.getElementById("displaymenu").style.display = "block";
+	
+	document.getElementById("pickside").style.display = "block";
+
+	document.getElementById("countdown").classList.remove("countdown-flash");
+	document.getElementById("countdown").classList.remove("countdown-animation");
+
+	document.getElementById("score").children[0].innerHTML = 0;
+	document.getElementById("score").children[1].innerHTML = 0;
+
+	localStorage.clear();
+});
+
+function setAudio() {
+	playAudio = !playAudio;
+
+	const button = document.getElementById("audioBtn");
+	if (playAudio) {
+		button.innerHTML = "Mute";
+	} else {
+		button.innerHTML = "Unmute";
+	}
+}
+
 //
-// Sets local storage in case of page refresh.
+// Clears local storage in case of page refresh.
 //
 localStorage.clear();

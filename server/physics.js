@@ -1,5 +1,4 @@
 let io;
-let gamemode
 
 //
 // Box2dWeb definitions for use in the game.
@@ -81,9 +80,6 @@ let fps = 60;
 
 let world;
 
-// Declare dynamic list for later
-let dynamicList = [];
-
 function setupCollisions() {
 	// Create ground and walls
 	let ground = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), (height - 5), (width / 2), 1, 0, "ground", false);
@@ -115,8 +111,9 @@ function setupCollisions() {
 	blueGoal.SetFilterData(filter);
 }
 
-// Destroy list
-var destroylist = [];
+// Variables that are used later in gamemode
+let play;
+let dynamicList = [];
 
 function init() {
 	world = new b2World(
@@ -136,6 +133,12 @@ function init() {
 	return world;
 }
 
+function destroy(actor) {
+	io.sockets.emit("remove", actor.GetBody().GetUserData().render);
+
+	world.DestroyBody(actor.GetBody());
+}
+
 function tick() {
 	world.Step(
 		1/fps, 	// FPS
@@ -144,21 +147,12 @@ function tick() {
 	);
 	world.ClearForces();
 
-	for(var obj of destroylist) {
-		io.sockets.emit("remove", obj[1]);
-
-		if (obj[0] instanceof Actor) {
-			world.DestroyBody(obj[0].body);
-		} else {
-			world.DestroyBody(obj[0].GetBody());
-		}
-	}
-	destroylist.length = 0;
-
-	if (gamemode.play) {
+	if (play) {
 		for (var actor of dynamicList) {
-			if (actor.GetUserData.id != "football") {
-				actor.movement();
+			if (actor.GetBody().GetUserData().id != "football") {
+				const a = actor.GetBody().GetUserData().actor;
+
+				a.movement();
 			} else {
 				// Gives ball friction so that it gradually slows down
 				var ballVelocity = actor.GetBody().GetLinearVelocity();
@@ -178,12 +172,14 @@ function tick() {
 	}
 }
 
+let setScoreFunc;
 function initialiseContacts() {
 	let listener = new Box2D.Dynamics.b2ContactListener;
-	listener.BeginContact = function(contact) {
-		var obj1;
-		var obj2;
 
+	var obj1;
+	var obj2;
+
+	listener.BeginContact = function(contact) {
 		// Make sure obj2 is football for if statements
 		if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
 			obj1 = contact.GetFixtureB().GetBody();
@@ -194,31 +190,28 @@ function initialiseContacts() {
 		}
 
 		if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-			for (var actor of actors) {
-				if (actor[0].body == obj1) {
-					actor[0].contact = obj2;
+			for (var actor of dynamicList) {
+				if (actor.GetBody() == obj1) {
+					const a = actor.GetBody().GetUserData().actor;
 
-					actor[0].kick();
+					a.contact = obj2;
+
+					a.kick();
 				}
 			}
 		} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
-			if (obj1.GetUserData().id == "redGoal") {
-				SetScore("team-blue");
-			} else {
-				SetScore("team-red");
-			}
+			setScoreFunc(obj1.GetUserData().id);
 		} else if ((obj2.GetUserData().id == "player" || obj2.GetUserData().id == "bot") && (obj1.GetUserData().id == "ground" || obj1.GetUserData().id == "crossbar")) {
-			for (var actor of actors) {
-				if (actor[0].body == obj2) {
-					actor[0].jumpCount = 0;
+			for (var actor of dynamicList) {
+				if (actor.GetBody() == obj2) {
+					const a = actor.GetBody().GetUserData().actor;
+
+					a.jumpCount = 0;
 				}
 			}
 		}
 	}
 	listener.EndContact = function(contact) {
-		var obj1;
-		var obj2;
-
 		// Make sure obj2 is football for if statements
 		if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
 			obj1 = contact.GetFixtureB().GetBody();
@@ -229,9 +222,11 @@ function initialiseContacts() {
 		}
 
 		if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-			for (var actor of actors) {
-				if (actor[0].body == obj1) {
-					actor[0].contact = null;
+			for (var actor of dynamicList) {
+				if (actor.GetBody() == obj1) {
+					const a = actor.GetBody().GetUserData().actor;
+
+					a.contact = null;
 				}
 			}
 		}
@@ -239,9 +234,12 @@ function initialiseContacts() {
 	world.SetContactListener(listener);
 }
 
-module.exports = function(ioIn, gamemodeIn) {
-	io = ioIn;
-	gamemode = gamemodeIn;
+function callback(func) {
+	setScoreFunc = func;
+}
 
-	return {init, add};
+module.exports = function(ioIn) {
+	io = ioIn;
+
+	return {init, add, dynamicList, play, width, height, scale};
 }

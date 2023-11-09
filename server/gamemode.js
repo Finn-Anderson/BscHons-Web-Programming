@@ -1,20 +1,26 @@
 let io;
+let physics;
+class Player {}
+class AI {}
 
 // Declaration of variables to be used in the gamemode
-let actors = [];
-let totalSecs = 0;
-let timer_id;
-let play;
-let canScore;
-let finalScore;
-let showSubmit = false;
-let playAudio = true;
+let width;
+let height;
+let scale;
 
 let difficulty;
 let botNum = {blue: 0, red: 0};
 
+let totalSecs = 0;
+let timer_id;
+
+let canScore;
+let finalScore;
+
+let showSubmit = false;
+
 function setDifficulty(value) {
-	difficulty
+	difficulty = value;
 }
 
 function setBotNum(team, value) {
@@ -25,27 +31,52 @@ function setBotNum(team, value) {
 	}
 }
 
-function StartGame() {
-	document.getElementById("displaymenu").style.display = "block";
+function chooseTeam(team) {
+	new Player(team, "player");
 
-	SpawnBots();
+	var count = 0;
+	for (var actor of physics.dynamicList) {
+		if (actor.GetBody().GetUserData().id == "player") count++;
+	}
 
-	Reset();
+	if (count == 1) {
+		startGame();
+	}
+
+	return (physics.dynamicList.length - 1);
 }
 
-function Reset() {
-	for (var actor of actors) {
+function startGame() {
+	// Spawn bots
+	for (var i = 0; i < botNum.red; i++) {
+		new AI("team-red", "bot", difficulty);
+	}
+
+	for (var i = 0; i < botNum.blue; i++) {
+		new AI("team-blue", "bot", difficulty);
+	}
+
+	reset();
+}
+
+function reset() {
+	for (var actor of physics.dynamicList) {
 		var x;
 		var y = (height - 300) / scale;
-		if (actor[2] == "team-red") {
-			x = 200 / scale;
+		if (actor.GetBody().GetUserData().id != "football") {
+			if (actor.GetBody().GetUserData().team == "team-red") {
+				x = 200 / scale;
+			} else {
+				x = (width - 200) / scale;
+			}
 		} else {
-			x = (width - 200) / scale;
+			x = width / 2 / scale;
 		}
-		actor[0].body.SetLinearVelocity(new b2Vec2 (0, 0));
-		actor[0].body.SetPosition(new b2Vec2 (x, y));
-		actor[0].body.ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
-		actor[0].charge = 300;
+
+		actor.GetBody().SetLinearVelocity(new b2Vec2 (0, 0));
+		actor.GetBody().SetPosition(new b2Vec2 (x, y));
+		actor.GetBody().ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
+		actor.GetBody().charge = 300;
 	}
 
 	var canvas = document.getElementsByTagName("canvas")[0];
@@ -53,24 +84,16 @@ function Reset() {
 	canvas.style.left = 0;
 	canvas.style.top = 0;
 
-	play = false;
+	physics.play = false;
 
 	document.getElementById("countdown").classList.remove("countdown-flash");
 	document.getElementById("countdown").innerHTML = 3;
 
 	timer_id = setInterval(Countdown, 1000);
 	document.getElementById("countdown").classList.add("countdown-animation");
-
-	if (football) {
-		destroylist.push([football, easelfootball]);
-	}
 }
 
-function Restart() {
-	document.getElementById("gameover").style.display = "none";
-	
-	document.getElementById("pickside").style.display = "block";
-
+function restart() {
 	if (timer_id) {
 		clearInterval(timer_id);
 
@@ -78,31 +101,18 @@ function Restart() {
 		SetTimer();
 	}
 
-	for (var actor of actors) {
-		destroylist.push(actor);
+	for (var actor of physics.dynamicList) {
+		physics.destroy(actor);
 	}
+	physics.dynamicList.length = 0;
 
-	if (football) {
-		destroylist.push([football, easelfootball]);
-	}
-
-	actors.length = 0;
-
-	SetTeamNum();
+	setTeamNum();
 
 	clearInterval(timer_id);
 	clearTimeout(timer_id);
-
-	document.getElementById("countdown").classList.remove("countdown-flash");
-	document.getElementById("countdown").classList.remove("countdown-animation");
-
-	document.getElementById("score").children[0].innerHTML = 0;
-	document.getElementById("score").children[1].innerHTML = 0;
-
-	localStorage.clear();
 }
 
-function Countdown() {
+function countdown() {
 	var counter = document.getElementById("countdown");
 
 	counter.innerHTML--;
@@ -120,34 +130,6 @@ function Countdown() {
 	}
 }
 
-function ChooseTeam(team) {
-	document.getElementById("pickside").style.display = "none";
-
-	if (actors[localStorage.getItem("Index")]) {
-		var ply = actors[localStorage.getItem("Index")];
-
-		destroylist.push(ply);
-
-		actors.splice(localStorage.getItem("Index"), 1);
-	}
-
-	var player = new Player(team, "player");
-
-	localStorage.setItem("Index", actors.length - 1);
-
-	localStorage.setItem("Team", team);
-
-	var count = 0;
-	for (var actor of actors) {
-		var id = actor[0].body.GetUserData().id;
-		if (id == "player") count++;
-	}
-
-	if (count == 1) {
-		StartGame();
-	}
-}
-
 function SpawnFootball() {
 	football = CreateCircle(1.0, 0.2, 0.5, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
 	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
@@ -160,28 +142,16 @@ function SpawnFootball() {
 
 	stage.addChild(easelfootball);
 
-	play = true;
+	physics.play = true;
 }
 
-function SpawnBots() {
-	var num;
-
-	num = document.querySelector("input[name='red-bots']:checked").value;
-	for (var i = 0; i < num; i++) {
-		new AI("team-red", "bot");
-	}
-
-	num = document.querySelector("input[name='blue-bots']:checked").value;
-	for (var i = 0; i < num; i++) {
-		new AI("team-blue", "bot");
-	}
-}
-
-function SetTeamNum() {
+function setTeamNum() {
 	var redNum = 0;
 	var blueNum = 0;
 
-	for (var actor of actors) {
+	for (var actor of physics.dynamicList) {
+		if (actor.GetBody().GetUserData().id == "football") continue;
+
 		if (actor[2] == "team-red") {
 			redNum++;
 		} else {
@@ -194,14 +164,15 @@ function SetTeamNum() {
 	document.getElementsByClassName("capacity")[1].innerHTML = blueNum;
 }
 
-function SetScore(team) {
+function setScore(goal) {
 	if (canScore) {
 		var score = document.getElementById("score");
-		if (team == "team-red") {
+		if (goal == "redGoal") {
 			score.children[0].innerHTML++;
 		} else {
 			score.children[1].innerHTML++;
 		}
+
 		canScore = false;
 
 		document.getElementById("countdown").innerHTML = "GOAL!!!";
@@ -218,7 +189,7 @@ function SetScore(team) {
 		if (score.children[0].innerHTML == 5 || score.children[1].innerHTML == 5) {
 			timer_id = setTimeout(GameOver, 5000, team);
 		} else {
-			timer_id = setTimeout(Reset, 5000);
+			timer_id = setTimeout(reset, 5000);
 		}
 	}
 }
@@ -246,25 +217,6 @@ function SetTimer() {
 	document.getElementById("timer").innerHTML = minutes + ":" + seconds;
 }
 
-function DisplayMenu() {
-	if (document.getElementById("menu").style.display == "flex") {
-		document.getElementById("menu").style.display = "none";
-	} else {
-		document.getElementById("menu").style.display = "flex";
-	}
-}
-
-function SetAudio() {
-	playAudio = !playAudio;
-
-	const button = document.getElementById("audioBtn");
-	if (playAudio) {
-		button.innerHTML = "Mute";
-	} else {
-		button.innerHTML = "Unmute";
-	}
-}
-
 function GameOver(team) {
 	if (showSubmit) {
 		var button = document.createElement("button");
@@ -272,7 +224,7 @@ function GameOver(team) {
 		button.innerHTML = "Submit Score";
 		button.style.marginTop = "24px";
 		button.id = "submit";
-		button.onclick = function() {submitScore(finalScore, finalDifficulty)};
+		button.onclick = function() {submitScore(finalScore, difficulty)};
 
 		document.querySelectorAll(".submitScoreButton").forEach(e => e.remove());
 
@@ -320,7 +272,15 @@ function GameOver(team) {
 	document.getElementById("gameover").children[1].innerHTML = "Score: " + finalScore;
 }
 
-module.exports = function(ioIn) {
+module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 	io = ioIn;
-	return {setDifficulty, setBotNum, play};
+	physics = physicsIn;
+	Player = playerIn;
+	AI = AIIn;
+
+	width = physics.wdith;
+	height = physics.height;
+	scale = physics.scale;
+
+	return {setDifficulty, setBotNum, chooseTeam, restart};
 }

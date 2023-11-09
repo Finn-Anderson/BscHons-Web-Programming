@@ -27,9 +27,6 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js" defer></script>
 
 	<script src="js/render.js" defer></script>
-	<script src="js/actor.js" defer></script>
-	<script src="js/player.js" defer></script>
-	<script src="js/ai.js" defer></script>
 	<script src="js/ajax.js" defer></script>
 </head>
 <body>
@@ -54,27 +51,27 @@
 
 		<p id="countdown">3</p>
 
-		<button id="displaymenu" onclick="DisplayMenu()"></button>
+		<button id="displaymenu" onclick="displayMenu()"></button>
 
 		<div id="menu">
 			<h1>Menu</h1>
-			<button onclick="DisplayMenu()">Resume</button>
-			<button id="displaypick" onclick="DisplayMenu(); Restart()">Restart</button>
-			<button id="audioBtn" onclick="SetAudio()">Mute</button>
+			<button onclick="displayMenu()">Resume</button>
+			<button id="displaypick" onclick="displayMenu(); restart()">Restart</button>
+			<button id="audioBtn" onclick="setAudio()">Mute</button>
 		</div>
 
 		<div id="gameover">
 			<h1></h1>
 			<p></p>
-			<button id="displaypick" onclick="Restart()">Restart</button>
+			<button id="displaypick" onclick="rstart()">Restart</button>
 		</div>
 
 		<div id="pickside">
-			<button id="redteam" onclick="ChooseTeam('team-red')">
+			<button id="redteam" onclick="chooseTeam('team-red')">
 				<p>Red Team</p>
 				<p class="capacity">0</p>
 			</button><!-- Whitespace creates a space between elements. This comment removes it.
-			--><button id="blueteam" onclick="ChooseTeam('team-blue')">
+			--><button id="blueteam" onclick="chooseTeam('team-blue')">
 				<p>Blue Team</p>
 				<p class="capacity">0</p>
 			</button>

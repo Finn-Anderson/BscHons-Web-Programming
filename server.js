@@ -177,10 +177,14 @@ Error.stackTraceLimit = Infinity;
 const server = app.listen(port, host);
 const io = require("socket.io")(server);
 
-const gamemode = require("./gamemode.js")(io); 
-
-const physics = require("./physics")(io, gamemode);
+const physics = require("./server/physics")(io);
 let world = physics.init();
+
+const actor = require("./server/actor");
+const player = require("./server/player")(actor, physics);
+const ai = require("./server/ai")(actor, physics);
+
+const gamemode = require("./server/gamemode.js")(io, physics, player, ai); 
 
 io.on("connection", function(socket) {
 	socket.emit("load", (response) => {
@@ -208,5 +212,19 @@ io.on("connection", function(socket) {
 		gamemode.setBotNum(team, value);
 
 		socket.broadcast.emit("botNum", team, value);
+	});
+
+	socket.on("chooseTeam", (team) => {
+		var index = gamemode.chooseTeam(team);
+
+		socket.emit("visualisePlayer", team, index);
+
+		socket.broadcast.emit("chooseTeam", team);
+	});
+
+	socket.on("restart", () => {
+		gamemode.restart();
+
+		socket.emit("restart");
 	});
 });
