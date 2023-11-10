@@ -1,9 +1,8 @@
-let physics;
-class Actor {}
+const Actor = require("./actor");
 
 class AI extends Actor {
-	constructor(team, type, difficulty) {
-		super(team, type);
+	constructor(team, type, physics, difficulty) {
+		super(team, type, physics);
 
 		this.reaction = difficulty;
 		this.command = [];
@@ -85,9 +84,4 @@ class AI extends Actor {
 	}
 }
 
-module.exports = function(actorIn, physicsIn) {
-	Actor = actorIn;
-	physics = physicsIn;
-
-	return {AI};
-}
+module.exports = AI;

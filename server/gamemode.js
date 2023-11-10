@@ -32,7 +32,9 @@ function setBotNum(team, value) {
 }
 
 function chooseTeam(team) {
-	new Player(team, "player");
+	new Player(team, "player", physics);
+
+	setTeamNum();
 
 	var count = 0;
 	for (var actor of physics.dynamicList) {
@@ -49,11 +51,11 @@ function chooseTeam(team) {
 function startGame() {
 	// Spawn bots
 	for (var i = 0; i < botNum.red; i++) {
-		new AI("team-red", "bot", difficulty);
+		new AI("team-red", "bot", physics, difficulty);
 	}
 
 	for (var i = 0; i < botNum.blue; i++) {
-		new AI("team-blue", "bot", difficulty);
+		new AI("team-blue", "bot", physics, difficulty);
 	}
 
 	reset();

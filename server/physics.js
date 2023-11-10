@@ -25,12 +25,19 @@ function add(body, response) {
 	body.SetUserData(userdata);
 }
 
-function CreateObject(density, friction, restitution, type, x, y, angle, objid, sensor) {
+function CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid, sensor) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = density;
 	fixDef.friction = friction;
 	fixDef.restitution = restitution;
 	fixDef.isSensor = sensor;
+
+	let type;
+	if (bDynamic) {
+		type = b2Body.b2_dynamicBody;
+	} else {
+		type = b2Body.b2_staticBody;
+	}
 
 	var bodyDef = new b2BodyDef;
 	bodyDef.type = type;
@@ -41,8 +48,8 @@ function CreateObject(density, friction, restitution, type, x, y, angle, objid, 
 	return [fixDef, bodyDef];
 }
 
-function CreateBox(density, friction, restitution, type, x, y, width, height, angle, objid, sensor) {
-	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, angle, objid, sensor);
+function CreateBox(density, friction, restitution, bDynamic, x, y, width, height, angle, objid, sensor) {
+	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid, sensor);
 
 	fixDef.shape = new b2PolygonShape;
 	fixDef.shape.SetAsBox(width/scale, height/scale);
@@ -55,8 +62,8 @@ function CreateBox(density, friction, restitution, type, x, y, width, height, an
 	return thisobj;
 }
 
-function CreateCircle(density, friction, restitution, type, x, y, r, angle, objid) {
-	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, type, x, y, angle, objid);
+function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, objid) {
+	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid);
 
 	fixDef.shape = new b2CircleShape(r/scale);
 
@@ -82,19 +89,19 @@ let world;
 
 function setupCollisions() {
 	// Create ground and walls
-	let ground = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width / 2), (height - 5), (width / 2), 1, 0, "ground", false);
-	let ceiling = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width / 2), 1, (width / 2), 1, 0, "ceiling", false);
-	let leftWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, 1, height, 1, height, 0, "leftWall", false);
-	let rightWall = CreateBox(1.0, 0.0, 0.2, b2Body.b2_staticBody, (width - 1), height, 1, height, 0, "rightWall", false);
+	let ground = CreateBox(1.0, 0.5, 0.2, false, (width / 2), (height - 5), (width / 2), 1, 0, "ground", false);
+	let ceiling = CreateBox(1.0, 0.0, 0.2, false, (width / 2), 1, (width / 2), 1, 0, "ceiling", false);
+	let leftWall = CreateBox(1.0, 0.0, 0.2, false, 1, height, 1, height, 0, "leftWall", false);
+	let rightWall = CreateBox(1.0, 0.0, 0.2, false, (width - 1), height, 1, height, 0, "rightWall", false);
 
 	// Create goal posts
-	let redPost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 60, height, 60, 200, 0, "post", false);
-	let redCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 58, (height - 200), 62, 6, 0, "crossbar", false);
-	let redGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, 30, (height - 95), 38, 100, 0, "redGoal", true);
+	let redPost = CreateBox(1.0, 0.5, 0.2, false, 60, height, 60, 200, 0, "post", false);
+	let redCrossbar = CreateBox(1.0, 0.5, 0.2, false, 58, (height - 200), 62, 6, 0, "crossbar", false);
+	let redGoal = CreateBox(1.0, 0.5, 0.2, false, 30, (height - 95), 38, 100, 0, "redGoal", true);
 
-	let bluePost = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 60), height, 60, 200, 180, "post", false);
-	let blueCrossbar = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 58), (height - 200), 62, 6, 180, "crossbar", false);
-	let blueGoal = CreateBox(1.0, 0.5, 0.2, b2Body.b2_staticBody, (width - 30), (height - 95), 38, 100, 180, "blueGoal", true);
+	let bluePost = CreateBox(1.0, 0.5, 0.2, false, (width - 60), height, 60, 200, 180, "post", false);
+	let blueCrossbar = CreateBox(1.0, 0.5, 0.2, false, (width - 58), (height - 200), 62, 6, 180, "crossbar", false);
+	let blueGoal = CreateBox(1.0, 0.5, 0.2, false, (width - 30), (height - 95), 38, 100, 180, "blueGoal", true);
 
 	// Allow football to go through posts
 	let filter = ground.GetFilterData(); // Set collision of any object that must collide with the player and football.
@@ -241,5 +248,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, add, dynamicList, play, width, height, scale};
+	return {init, add, dynamicList, CreateCircle, play, width, height, scale};
 }

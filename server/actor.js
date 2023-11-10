@@ -1,5 +1,5 @@
 class Actor {
-	constructor(team, type) {
+	constructor(team, type, physics) {
 		// Movement key states
 		this.chip = false;
 		this.canRun = true;
@@ -12,7 +12,7 @@ class Actor {
 
 		this.contact = null;
 
-		this.body = this.spawn(team, type);
+		this.body = this.spawn(team, type, physics);
 	}
 
 	/**
@@ -20,29 +20,28 @@ class Actor {
 	 * - `team` (String) is the team the actor belongs to.
 	 * - `type` (String) is whether it is bot or player.
 	 */
-	spawn(team, type) {
+	spawn(team, type, physics) {
 		var x;
 		if (team == "team-red") {
 			x = 200;
 		} else {
-			x = width - 200;
+			x = 1280 - 200;
 		}
 
-		var a = physics.CreateCircle(0.0, 0.2, 0.0, b2Body.b2_dynamicBody, x, (height - 300), 20, type);
-		var filter = a.GetFilterData();
+		var actor = physics.CreateCircle(0.0, 0.2, 0.0, true, x, (720 - 300), 20, type);
+		var filter = actor.GetFilterData();
 		filter.categoryBits = 0x0004;
 		filter.maskBits = 0x0002;
 		filter.groupIndex = 2;
-		a.SetFilterData(filter);
+		actor.SetFilterData(filter);
 
-		a.GetUserData();
-		a.actor = actor;
+		var data = actor.GetBody().GetUserData();
+		data.actor = this;
+		actor.GetBody().SetUserData(data);
 
-		dynamicList.push(a);
+		physics.dynamicList.push(actor);
 
-		setTeamNum();
-
-		return a;
+		return actor.GetBody();
 	}
 
 	jump() {
@@ -172,6 +171,4 @@ class Actor {
 	}
 }
 
-module.exports = function() {
-	return {Actor};
-}
+module.exports = Actor;

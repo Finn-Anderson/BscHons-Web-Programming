@@ -1,9 +1,8 @@
-let physics;
-class Actor {}
+const Actor = require("./actor");
 
 class Player extends Actor {
-	constructor(team, type) {
-		super(team, type);
+	constructor(team, type, physics) {
+		super(team, type, physics);
 
 		// Movement key listeners
 		this.keys = [];
@@ -59,9 +58,4 @@ class Player extends Actor {
 	}
 }
 
-module.exports = function(actorIn, physicsIn) {
-	Actor = actorIn;
-	physics = physicsIn;
-
-	return {Player};
-}
+module.exports = Player;

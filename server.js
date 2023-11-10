@@ -180,9 +180,8 @@ const io = require("socket.io")(server);
 const physics = require("./server/physics")(io);
 let world = physics.init();
 
-const actor = require("./server/actor");
-const player = require("./server/player")(actor, physics);
-const ai = require("./server/ai")(actor, physics);
+const player = require("./server/player");
+const ai = require("./server/ai");
 
 const gamemode = require("./server/gamemode.js")(io, physics, player, ai); 
 
