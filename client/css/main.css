@@ -235,6 +235,7 @@ canvas {
 
 #pickside #redteam {
 	background-color: rgba(255, 0, 59, 0.5);
+	float: left;
 }
 
 #pickside #redteam:hover {
@@ -243,7 +244,6 @@ canvas {
 
 #pickside #blueteam {
 	background-color: rgba(0, 59, 255, 0.5);
-	border-left: 2px solid white;
 }
 
 #pickside #blueteam:hover {

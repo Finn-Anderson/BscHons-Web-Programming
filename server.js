@@ -239,23 +239,35 @@ io.on("connection", function(socket) {
 	socket.on("restart", () => {
 		gamemode.restart();
 
-		socket.emit("restart");
+		io.sockets.emit("restart");
 	});
 
-	socket.on("gameover", () => {
-		var redNum, blueNum = getTeamNum();
+	socket.on("gameover", (index) => {
+		var [redNum, blueNum] = gamemode.getTeamNum();
 		var positive = 0;
 		var negative = 1;
 		if (physics.dynamicList[index].GetBody().GetUserData().team == "team-red") {
-			positive = 1000 * score.red * redNum;
-			negative = blueNum * (score.blue + 1);
+			positive = 1000 * gamemode.score.red * redNum;
+			negative = blueNum * (gamemode.score.blue + 1);
 		} else {
-			positive = 1000 * score.blue * blueNum;
-			negative = redNum * (score.red + 1);
+			positive = 1000 * gamemode.score.blue * blueNum;
+			negative = redNum * (gamemode.score.red + 1);
 		}
 
-		var finalScore = Math.trunc(positive / negative - totalSecs);
+		var finalScore = Math.trunc(positive / negative - gamemode.totalSecs);
 
 		socket.emit("displaySubmitScore", finalScore, gamemode.difficulty)
 	});
+
+	var [redNum, blueNum] = gamemode.getTeamNum();
+
+	socket.emit("setTeamNum", redNum, blueNum);
+
+	socket.emit("difficulty", gamemode.difficulty);
+
+	socket.emit("setScore", gamemode.score);
+
+	socket.emit("botNum", "red-bots", gamemode.botNum.red);
+
+	socket.emit("botNum", "blue-bots", gamemode.botNum.blue);
 });

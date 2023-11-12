@@ -104,10 +104,10 @@ socket.on("add", (userdata, position, angle) => {
 	}
 });
 
-socket.on("remove", (index) => {
+socket.on("destroy", (index) => {
 	stage.removeChild(idList[index]);
 
-	idList.splice(index, 1);
+	delete idList[index];
 
 	stage.update();
 });
@@ -268,16 +268,19 @@ socket.on("countdown", (countdownNum) => {
 });
 
 socket.on("setTeamNum", (redNum, blueNum) => {
+	console.log(redNum, blueNum);
 	document.getElementsByClassName("capacity")[0].innerHTML = redNum;
 
 	document.getElementsByClassName("capacity")[1].innerHTML = blueNum;
 });
 
 socket.on("setScore", (score) => {
-	var score = document.getElementById("score");
-	score.children[0].innerHTML = score.red;
-	score.children[1].innerHTML = score.blue;
+	var s = document.getElementById("score");
+	s.children[0].innerHTML = score.red;
+	s.children[1].innerHTML = score.blue;
+});
 
+socket.on("goal", (score) => {
 	document.getElementById("countdown").innerHTML = "GOAL!!!";
 	document.getElementById("countdown").classList.add("countdown-flash");
 });

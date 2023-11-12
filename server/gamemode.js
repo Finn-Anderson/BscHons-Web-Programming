@@ -81,18 +81,18 @@ function reset() {
 	for (var actor of physics.dynamicList) {
 		var x;
 		var y = (physics.height - 300) / physics.scale;
-		if (actor.GetBody().GetUserData().id != "football") {
-			if (actor.GetBody().GetUserData().team == "team-red") {
-				x = 200 / physics.scale;
-			} else {
-				x = (physics.width - 200) / physics.scale;
-			}
+		if (actor.GetBody().GetUserData().team == "team-red") {
+			x = 200 / physics.scale;
 		} else {
-			x = physics.width / 2 / physics.scale;
+			x = (physics.width - 200) / physics.scale;
 		}
 
-		physics.resetPhysics(actor.GetBody(), x, y);
-		physics.wakeBody(actor.GetBody());
+		if (actor.GetBody().GetUserData().id == "football") {
+			physics.destroy(actor);
+		} else {
+			physics.resetPhysics(actor.GetBody(), x, y);
+			physics.wakeBody(actor.GetBody());
+		}
 	}
 
 	physics.setPlay(false);
@@ -149,11 +149,11 @@ function getTeamNum() {
 		}
 	}
 
-	return redNum, blueNum;
+	return [redNum, blueNum];
 }
 
 function setTeamNum() {
-	var redNum, blueNum = getTeamNum();
+	var [redNum, blueNum] = getTeamNum();
 
 	io.sockets.emit("setTeamNum", redNum, blueNum);
 }
@@ -161,9 +161,9 @@ function setTeamNum() {
 function setScore(goal) {
 	if (physics.canScore) {
 		if (goal == "redGoal") {
-			score.red++;
-		} else {
 			score.blue++;
+		} else {
+			score.red++;
 		}
 
 		physics.canScore = false;
@@ -172,9 +172,16 @@ function setScore(goal) {
 
 		io.sockets.emit("setScore", score);
 
+		io.sockets.emit("goal");
+
 		clearInterval(timer_id);
 
 		if (score.red == 5 || score.blue == 5) {
+			var team = "team-red";
+			if (score.blue == 5) {
+				team = "team=blue"
+			}
+
 			timer_id = setTimeout(gameover, 5000, team);
 		} else {
 			timer_id = setTimeout(reset, 5000);
@@ -204,6 +211,16 @@ function gameover(team) {
 	io.sockets.emit("gameover", team);
 }
 
+function load() {
+	var [redNum, blueNum] = getTeamNum();
+
+	io.sockets.emit("setTeamNum", redNum, blueNum);
+
+	socket.broadcast.emit("difficulty", value);
+
+	io.sockets.emit("setScore", score);
+}
+
 module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 	io = ioIn;
 	physics = physicsIn;
@@ -212,5 +229,5 @@ module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 
 	physics.callback(setScore);
 
-	return {setDifficulty, setBotNum, chooseTeam, restart, difficulty};
+	return {setDifficulty, setBotNum, chooseTeam, getTeamNum, botNum, score, totalSecs, restart, difficulty};
 }

@@ -59,7 +59,7 @@ function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, 
 	fixDef.shape = new b2CircleShape(r/scale);
 
 	var thisobj = world.CreateBody(bodyDef).CreateFixture(fixDef);
-	thisobj.GetBody().SetUserData({id: objid, width: r, height: r, count: world.GetBodyCount()});
+	thisobj.GetBody().SetUserData({id: objid, width: r, height: r, count: objid + world.GetBodyCount()});
 
 	var id;
 	if (team) {
@@ -68,7 +68,7 @@ function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, 
 		id = objid;
 	}
 
-	io.sockets.emit("add", {id: id, width: r, height: r, count: world.GetBodyCount()}, thisobj.GetBody().GetPosition(), angle);
+	io.sockets.emit("add", {id: id, width: r, height: r, count: objid + world.GetBodyCount()}, thisobj.GetBody().GetPosition(), angle);
 
 	return thisobj;
 }
@@ -138,7 +138,7 @@ function init() {
 }
 
 function destroy(actor) {
-	io.sockets.emit("remove", dynamicList.indexOf(actor));
+	io.sockets.emit("destroy", actor.GetBody().GetUserData().count);
 
 	world.DestroyBody(actor.GetBody());
 }
@@ -226,7 +226,10 @@ function setPlay(value) {
 function resetPhysics(body, x, y) {
 	body.SetLinearVelocity(new b2Vec2 (0, 0));
 	body.SetPosition(new b2Vec2 (x, y));
-	body.GetUserData().actor.charge = 300;
+
+	if (body.GetUserData().actor) {
+		body.GetUserData().actor.charge = 300;
+	}
 }
 
 function wakeBody(body) {
@@ -240,5 +243,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, dynamicList, CreateCircle, setPlay, resetPhysics, wakeBody, width, height, scale, callback};
+	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, width, height, scale, callback};
 }
