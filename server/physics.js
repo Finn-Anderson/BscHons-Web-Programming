@@ -16,15 +16,6 @@ var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
-function add(body, response) {
-	if (!response) return;
-
-	var userdata = response.data;
-	userdata.render = response.render;
-
-	body.SetUserData(userdata);
-}
-
 function CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid, sensor) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = density;
@@ -57,20 +48,27 @@ function CreateBox(density, friction, restitution, bDynamic, x, y, width, height
 	var thisobj = world.CreateBody(bodyDef).CreateFixture(fixDef);
 	thisobj.GetBody().SetUserData({id: objid, width: width, height: height});
 
-	io.sockets.emit("add", thisobj.GetBody().GetUserData(), thisobj.GetBody().GetPosition(), thisobj.GetBody().GetAngle(), (response) => { add(thisobj.GetBody(), response); });
+	io.sockets.emit("add", {id: objid, width: width, height: height}, thisobj.GetBody().GetPosition(), angle);
 
 	return thisobj;
 }
 
-function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, objid) {
+function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, objid, team) {
 	var [fixDef, bodyDef] = CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid);
 
 	fixDef.shape = new b2CircleShape(r/scale);
 
 	var thisobj = world.CreateBody(bodyDef).CreateFixture(fixDef);
-	thisobj.GetBody().SetUserData({id: objid, width: width, height: height});
+	thisobj.GetBody().SetUserData({id: objid, width: r, height: r, count: world.GetBodyCount()});
 
-	io.sockets.emit("add", thisobj.GetBody().GetUserData(), thisobj.GetBody().GetPosition(), thisobj.GetBody().GetAngle(), (response) => { add(thisobj.GetBody(), response); });
+	var id;
+	if (team) {
+		id = team;
+	} else {
+		id = objid;
+	}
+
+	io.sockets.emit("add", {id: id, width: r, height: r, count: world.GetBodyCount()}, thisobj.GetBody().GetPosition(), angle);
 
 	return thisobj;
 }
@@ -83,7 +81,7 @@ function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, 
 let width = 1280;
 let height = 540;
 let scale = 30;
-let fps = 60;
+let rate = 60;
 
 let world;
 
@@ -100,7 +98,7 @@ function setupCollisions() {
 	let redGoal = CreateBox(1.0, 0.5, 0.2, false, 30, (height - 95), 38, 100, 0, "redGoal", true);
 
 	let bluePost = CreateBox(1.0, 0.5, 0.2, false, (width - 60), height, 60, 200, 180, "post", false);
-	let blueCrossbar = CreateBox(1.0, 0.5, 0.2, false, (width - 58), (height - 200), 62, 6, 180, "crossbar", false);
+	let blueCrossbar = CreateBox(1.0, 0.5, 0.2, false, (width - 58), (height - 200), 62, 6, 0, "crossbar", false);
 	let blueGoal = CreateBox(1.0, 0.5, 0.2, false, (width - 30), (height - 95), 38, 100, 180, "blueGoal", true);
 
 	// Allow football to go through posts
@@ -120,6 +118,7 @@ function setupCollisions() {
 
 // Variables that are used later in gamemode
 let play;
+let canScore = true;
 let dynamicList = [];
 
 function init() {
@@ -132,23 +131,21 @@ function init() {
 
 	initialiseContacts();
 
-	let interval = setInterval(function() {
-		tick();
-	}, 1000/fps);
+	let interval = setInterval(function() { tick(); }, 1000/240);
 	tick();
 
 	return world;
 }
 
 function destroy(actor) {
-	io.sockets.emit("remove", actor.GetBody().GetUserData().render);
+	io.sockets.emit("remove", dynamicList.indexOf(actor));
 
 	world.DestroyBody(actor.GetBody());
 }
 
 function tick() {
 	world.Step(
-		1/fps, 	// FPS
+		1/24, 	// FPS
 		10,		// Velocity Iterations
 		10		// Position Iterations
 	);
@@ -164,19 +161,22 @@ function tick() {
 				// Gives ball friction so that it gradually slows down
 				var ballVelocity = actor.GetBody().GetLinearVelocity();
 				if (Math.sign(ballVelocity.x) == -1) {
-					ballVelocity.x += 0.01;
+					ballVelocity.x += 0.03;
 				} else if (Math.sign(ballVelocity.x) == 1)  {
-					ballVelocity.x -= 0.01; 
+					ballVelocity.x -= 0.03; 
 				}
 
 				if (!canScore) {
-					ZoomIntoScorer(actor.GetBody().GetUserData());
+					io.sockets.emit("zoomIntoScorer", actor.GetBody().GetUserData().last.GetPosition());
 				}
 			}
 		}
-
-		io.sockets.emit("tick", dynamicList);
 	}
+	const map = dynamicList.map((actor) => { 
+		return {count: actor.GetBody().GetUserData().count, position: actor.GetBody().GetPosition(), angle: actor.GetBody().GetAngle()}; 
+	});
+
+	io.sockets.emit("tick", map);
 }
 
 let setScoreFunc;
@@ -201,9 +201,7 @@ function initialiseContacts() {
 				if (actor.GetBody() == obj1) {
 					const a = actor.GetBody().GetUserData().actor;
 
-					a.contact = obj2;
-
-					a.kick();
+					a.kick(io, obj2);
 				}
 			}
 		} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
@@ -218,27 +216,21 @@ function initialiseContacts() {
 			}
 		}
 	}
-	listener.EndContact = function(contact) {
-		// Make sure obj2 is football for if statements
-		if (contact.GetFixtureA().GetBody().GetUserData().id == "football") {
-			obj1 = contact.GetFixtureB().GetBody();
-			obj2 = contact.GetFixtureA().GetBody();
-		} else {
-			obj1 = contact.GetFixtureA().GetBody();
-			obj2 = contact.GetFixtureB().GetBody();
-		}
-
-		if ((obj1.GetUserData().id == "player" || obj1.GetUserData().id == "bot") && obj2.GetUserData().id == "football") {
-			for (var actor of dynamicList) {
-				if (actor.GetBody() == obj1) {
-					const a = actor.GetBody().GetUserData().actor;
-
-					a.contact = null;
-				}
-			}
-		}
-	}
 	world.SetContactListener(listener);
+}
+
+function setPlay(value) {
+	play = value;
+}
+
+function resetPhysics(body, x, y) {
+	body.SetLinearVelocity(new b2Vec2 (0, 0));
+	body.SetPosition(new b2Vec2 (x, y));
+	body.GetUserData().actor.charge = 300;
+}
+
+function wakeBody(body) {
+	body.ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
 }
 
 function callback(func) {
@@ -248,5 +240,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, add, dynamicList, CreateCircle, play, width, height, scale};
+	return {init, dynamicList, CreateCircle, setPlay, resetPhysics, wakeBody, width, height, scale, callback};
 }

@@ -188,12 +188,19 @@ const gamemode = require("./server/gamemode.js")(io, physics, player, ai);
 io.on("connection", function(socket) {
 	socket.emit("load", (response) => {
 		if (response.status == "complete") {
-			var node = world.GetBodyList();
+			var node = world.GetGroundBody().m_prev;
 
-			while (node.GetNext()) {
-				socket.emit("add", node.GetUserData(), node.GetPosition(), node.GetAngle(), (response) => { physics.add(node, response); });
+			while (node) {
+				var id;
+				if (node.GetUserData().team) {
+					id = node.GetUserData().team;
+				} else {
+					id = node.GetUserData().id;
+				}
 
-				node = node.GetNext();
+				socket.emit("add", {id: id, width: node.GetUserData().width, height: node.GetUserData().height, count: node.GetUserData().count}, node.GetPosition(), node.GetAngle());
+
+				node = node.m_prev;
 			}
 		}
 	});
@@ -216,14 +223,39 @@ io.on("connection", function(socket) {
 	socket.on("chooseTeam", (team) => {
 		var index = gamemode.chooseTeam(team);
 
-		socket.emit("visualisePlayer", team, index);
-
-		socket.broadcast.emit("chooseTeam", team);
+		socket.emit("setIndex", index);
 	});
+
+	socket.on("movement", (index, event) => {
+		var actor = physics.dynamicList[index].GetBody().GetUserData().actor;
+
+		if (event.type == "keydown") {
+			actor.onKeyDown(event);
+		} else {
+			actor.onKeyUp(event);
+		}
+	})
 
 	socket.on("restart", () => {
 		gamemode.restart();
 
 		socket.emit("restart");
+	});
+
+	socket.on("gameover", () => {
+		var redNum, blueNum = getTeamNum();
+		var positive = 0;
+		var negative = 1;
+		if (physics.dynamicList[index].GetBody().GetUserData().team == "team-red") {
+			positive = 1000 * score.red * redNum;
+			negative = blueNum * (score.blue + 1);
+		} else {
+			positive = 1000 * score.blue * blueNum;
+			negative = redNum * (score.red + 1);
+		}
+
+		var finalScore = Math.trunc(positive / negative - totalSecs);
+
+		socket.emit("displaySubmitScore", finalScore, gamemode.difficulty)
 	});
 });

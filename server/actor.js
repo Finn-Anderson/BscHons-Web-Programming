@@ -10,9 +10,9 @@ class Actor {
 
 		this.team = team;
 
-		this.contact = null;
+		this.physics = physics;
 
-		this.body = this.spawn(team, type, physics);
+		this.body = this.spawn(team, type);
 	}
 
 	/**
@@ -20,7 +20,7 @@ class Actor {
 	 * - `team` (String) is the team the actor belongs to.
 	 * - `type` (String) is whether it is bot or player.
 	 */
-	spawn(team, type, physics) {
+	spawn(team, type) {
 		var x;
 		if (team == "team-red") {
 			x = 200;
@@ -28,7 +28,7 @@ class Actor {
 			x = 1280 - 200;
 		}
 
-		var actor = physics.CreateCircle(0.0, 0.2, 0.0, true, x, (720 - 300), 20, type);
+		var actor = this.physics.CreateCircle(0.0, 0.2, 0.0, true, x, (720 - 300), 20, 0, type, team);
 		var filter = actor.GetFilterData();
 		filter.categoryBits = 0x0004;
 		filter.maskBits = 0x0002;
@@ -36,10 +36,11 @@ class Actor {
 		actor.SetFilterData(filter);
 
 		var data = actor.GetBody().GetUserData();
+		data.team = team;
 		data.actor = this;
 		actor.GetBody().SetUserData(data);
 
-		physics.dynamicList.push(actor);
+		this.physics.dynamicList.push(actor);
 
 		return actor.GetBody();
 	}
@@ -58,19 +59,17 @@ class Actor {
 		}
 	}
 
-	kick() {
-		if (!this.contact) return;
-
+	kick(io, contact) {
 		var force = this.force;
 
 		// Makes sure kicking ball is not glued to the player by multiplying player movement force by 1.2
 		var finalV = Math.hypot(force.x, force.y) * 1.2;
 
 		if (finalV > 0) {
-			var bV = this.contact.GetLinearVelocity();
+			var bV = contact.GetLinearVelocity();
 		
 			// Get contact position of player and ball
-			var pos = new b2Vec2((this.contact.GetPosition().x - this.body.GetPosition().x), (this.contact.GetPosition().y - this.body.GetPosition().y));
+			var pos = {x: (contact.GetPosition().x - this.body.GetPosition().x), y: (contact.GetPosition().y - this.body.GetPosition().y)};
 
 			bV.x = pos.x * finalV;
 			bV.y = pos.y * finalV;
@@ -80,22 +79,21 @@ class Actor {
 				bV.y = -Math.min(Math.abs(bV.x) * 2, 16);
 			}
 
-			if (playAudio) {
-				document.getElementById("audioKick").play();
-			}
+			io.sockets.emit("audio", "kick");
 		}
 
 		// Log last to kick ball before goal for zoom-in effect
-		var data = this.contact.GetUserData();
+		var data = contact.GetUserData();
 		data.last = this.body;
+		contact.SetUserData(data);
 	}
 
-	get contact() {
-		return this._contact;
+	get physics() {
+		return this._physics;
 	}
 
-	set contact(contact) {
-		this._contact = contact;
+	set physics(phy) {
+		this._physics = phy;
 	}
 
 	get jumpCount() {
@@ -167,7 +165,7 @@ class Actor {
 			}
 		}
 
-		this.body.ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0)); // used to wake up player object and apply the set velocity
+		this.physics.wakeBody(this.body);
 	}
 }
 

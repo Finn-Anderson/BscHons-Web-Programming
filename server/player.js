@@ -6,19 +6,9 @@ class Player extends Actor {
 
 		// Movement key listeners
 		this.keys = [];
-		this.keyBanList = [32, 65, 68];
-
-		document.addEventListener("keydown", this.onKeyDown.bind(this));
-		document.addEventListener("keyup", this.onKeyUp.bind(this));
 	}
 
 	onKeyDown(event) {
-		for (const key of this.keyBanList) {
-			if (event.keyCode == key) {
-				event.preventDefault();
-			}
-		}
-
 		if (this.keys.includes(event.key.toLowerCase())) return;
 
 		if (event.key == " ") this.jump();
@@ -42,7 +32,7 @@ class Player extends Actor {
 		}
 	}
 
-	movement() {
+	movement(football) {
 		var force = this.force;
 
 		if (this.keys.length > 0) {

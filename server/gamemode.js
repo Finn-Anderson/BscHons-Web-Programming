@@ -4,20 +4,15 @@ class Player {}
 class AI {}
 
 // Declaration of variables to be used in the gamemode
-let width;
-let height;
-let scale;
-
 let difficulty;
-let botNum = {blue: 0, red: 0};
+let botNum = {red: 0, blue: 0};
+
+let countdownNum = 3;
 
 let totalSecs = 0;
 let timer_id;
 
-let canScore;
-let finalScore;
-
-let showSubmit = false;
+let score = {red: 0, blue: 0};
 
 function setDifficulty(value) {
 	difficulty = value;
@@ -61,46 +56,12 @@ function startGame() {
 	reset();
 }
 
-function reset() {
-	for (var actor of physics.dynamicList) {
-		var x;
-		var y = (height - 300) / scale;
-		if (actor.GetBody().GetUserData().id != "football") {
-			if (actor.GetBody().GetUserData().team == "team-red") {
-				x = 200 / scale;
-			} else {
-				x = (width - 200) / scale;
-			}
-		} else {
-			x = width / 2 / scale;
-		}
-
-		actor.GetBody().SetLinearVelocity(new b2Vec2 (0, 0));
-		actor.GetBody().SetPosition(new b2Vec2 (x, y));
-		actor.GetBody().ApplyForce(new b2Vec2 (0.0, 0.0), new b2Vec2 (0.0, 0.0));
-		actor.GetBody().charge = 300;
-	}
-
-	var canvas = document.getElementsByTagName("canvas")[0];
-	canvas.style.transform = "scale(1.0)";
-	canvas.style.left = 0;
-	canvas.style.top = 0;
-
-	physics.play = false;
-
-	document.getElementById("countdown").classList.remove("countdown-flash");
-	document.getElementById("countdown").innerHTML = 3;
-
-	timer_id = setInterval(Countdown, 1000);
-	document.getElementById("countdown").classList.add("countdown-animation");
-}
-
 function restart() {
 	if (timer_id) {
 		clearInterval(timer_id);
 
 		totalSecs = -1;
-		SetTimer();
+		setTimer();
 	}
 
 	for (var actor of physics.dynamicList) {
@@ -108,33 +69,60 @@ function restart() {
 	}
 	physics.dynamicList.length = 0;
 
+	score = {red: 0, blue: 0};
+
 	setTeamNum();
 
 	clearInterval(timer_id);
 	clearTimeout(timer_id);
 }
 
+function reset() {
+	for (var actor of physics.dynamicList) {
+		var x;
+		var y = (physics.height - 300) / physics.scale;
+		if (actor.GetBody().GetUserData().id != "football") {
+			if (actor.GetBody().GetUserData().team == "team-red") {
+				x = 200 / physics.scale;
+			} else {
+				x = (physics.width - 200) / physics.scale;
+			}
+		} else {
+			x = physics.width / 2 / physics.scale;
+		}
+
+		physics.resetPhysics(actor.GetBody(), x, y);
+		physics.wakeBody(actor.GetBody());
+	}
+
+	physics.setPlay(false);
+
+	countdownNum = 3;
+
+	countdown();
+	timer_id = setInterval(countdown, 1000);
+
+	io.sockets.emit("reset");
+}
+
 function countdown() {
-	var counter = document.getElementById("countdown");
+	io.sockets.emit("countdown", countdownNum);
 
-	counter.innerHTML--;
-
-	if (counter.innerHTML == 0) {
-		document.getElementById("countdown").classList.remove("countdown-animation");
-
+	if (countdownNum == 0) {
 		SpawnFootball();
-		
+	
 		clearInterval(timer_id);
 
-		timer_id = setInterval(SetTimer, 1000);
+		timer_id = setInterval(setTimer, 1000);
 
-		canScore = true
+		physics.canScore = true
 	}
+
+	countdownNum--;
 }
 
 function SpawnFootball() {
-	football = CreateCircle(1.0, 0.2, 0.5, b2Body.b2_dynamicBody, (width / 2), (height - 300), 20, "football");
-	easelfootball = CreateBitmap(loader.getResult("football"), 20, 20);
+	var football = physics.CreateCircle(1.0, 0.2, 0.5, true, (physics.width / 2), (physics.height - 300), 20, 0, "football");
 
 	var filter = football.GetFilterData();
 	filter.categoryBits = 0x0004;
@@ -142,68 +130,59 @@ function SpawnFootball() {
 	filter.groupIndex = 2;
 	football.SetFilterData(filter);
 
-	stage.addChild(easelfootball);
+	physics.dynamicList.push(football);
 
-	physics.play = true;
+	physics.setPlay(true);
 }
 
-function setTeamNum() {
+function getTeamNum() {
 	var redNum = 0;
 	var blueNum = 0;
 
 	for (var actor of physics.dynamicList) {
 		if (actor.GetBody().GetUserData().id == "football") continue;
 
-		if (actor[2] == "team-red") {
+		if (actor.GetBody().GetUserData().team == "team-red") {
 			redNum++;
 		} else {
 			blueNum++;
 		}
 	}
 
-	document.getElementsByClassName("capacity")[0].innerHTML = redNum;
+	return redNum, blueNum;
+}
 
-	document.getElementsByClassName("capacity")[1].innerHTML = blueNum;
+function setTeamNum() {
+	var redNum, blueNum = getTeamNum();
+
+	io.sockets.emit("setTeamNum", redNum, blueNum);
 }
 
 function setScore(goal) {
-	if (canScore) {
-		var score = document.getElementById("score");
+	if (physics.canScore) {
 		if (goal == "redGoal") {
-			score.children[0].innerHTML++;
+			score.red++;
 		} else {
-			score.children[1].innerHTML++;
+			score.blue++;
 		}
 
-		canScore = false;
+		physics.canScore = false;
 
-		document.getElementById("countdown").innerHTML = "GOAL!!!";
-		document.getElementById("countdown").classList.add("countdown-flash");
+		io.sockets.emit("audio", "goal");
 
-		if (playAudio) {
-			var audio = document.getElementById("audioGoal");
-			audio.volume = 0.5;
-			audio.play();
-		}
+		io.sockets.emit("setScore", score);
 
 		clearInterval(timer_id);
 
-		if (score.children[0].innerHTML == 5 || score.children[1].innerHTML == 5) {
-			timer_id = setTimeout(GameOver, 5000, team);
+		if (score.red == 5 || score.blue == 5) {
+			timer_id = setTimeout(gameover, 5000, team);
 		} else {
 			timer_id = setTimeout(reset, 5000);
 		}
 	}
 }
 
-function ZoomIntoScorer(data) {
-	var canvas = document.getElementsByTagName("canvas")[0];
-	canvas.style.transform = "scale(1.5)";
-	canvas.style.left = -data.last.GetPosition().x * scale + (width / 2) + "px";
-	canvas.style.top = -data.last.GetPosition().y * scale + (height / 2) + "px";
-}
-
-function SetTimer() {
+function setTimer() {
 	totalSecs++;
 
 	var seconds = totalSecs % 60;
@@ -216,62 +195,13 @@ function SetTimer() {
 		var minutes = "0" + minutes;
 	}
 
-	document.getElementById("timer").innerHTML = minutes + ":" + seconds;
+	io.sockets.emit("setTimer", minutes, seconds);
 }
 
-function GameOver(team) {
-	if (showSubmit) {
-		var button = document.createElement("button");
-		button.classList.add("submitScoreButton"); 
-		button.innerHTML = "Submit Score";
-		button.style.marginTop = "24px";
-		button.id = "submit";
-		button.onclick = function() {submitScore(finalScore, difficulty)};
+function gameover(team) {
+	io.sockets.emit("audio", "gameover");
 
-		document.querySelectorAll(".submitScoreButton").forEach(e => e.remove());
-
-		document.getElementById("gameover").appendChild(button);
-	}
-
-	document.getElementById("countdown").classList.remove("countdown-flash");
-
-	document.getElementById("displaymenu").style.display = "none";
-
-	document.getElementById("gameover").style.display = "block";
-
-	if (playAudio) {
-		var audio = document.getElementById("audioGameOver");
-		audio.volume = 0.7;
-		audio.play();
-	}
-
-	var text;
-	if (team == "team-red") {
-		text = "RED WINS";
-	} else {
-		text = "BLUE WINS";
-	}
-
-	document.getElementById("gameover").children[0].innerHTML = text;
-
-	var localTeam = localStorage.getItem("Team");
-
-	var goals = document.getElementById("score").children;
-	var teamNum = document.getElementsByClassName("capacity");
-
-	var positive = 0;
-	var negative = 1;
-	if (localTeam == "team-red") {
-		positive = 1000 * goals[0].innerHTML * teamNum[1].innerHTML;
-		negative = teamNum[0].innerHTML * (Number(goals[1].innerHTML) + 1);
-	} else {
-		positive = 1000 * goals[1].innerHTML * teamNum[0].innerHTML;
-		negative = teamNum[1].innerHTML * (goals[0].innerHTML + 1);
-	}
-
-	finalScore = Math.trunc(positive / negative - totalSecs);
-
-	document.getElementById("gameover").children[1].innerHTML = "Score: " + finalScore;
+	io.sockets.emit("gameover", team);
 }
 
 module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
@@ -280,9 +210,7 @@ module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 	Player = playerIn;
 	AI = AIIn;
 
-	width = physics.wdith;
-	height = physics.height;
-	scale = physics.scale;
+	physics.callback(setScore);
 
-	return {setDifficulty, setBotNum, chooseTeam, restart};
+	return {setDifficulty, setBotNum, chooseTeam, restart, difficulty};
 }

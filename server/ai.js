@@ -15,7 +15,14 @@ class AI extends Actor {
 		if (!this.reactTimer) {
 			this.command.length = 0;
 
-			var ballLoc = football.GetBody().GetPosition();
+			var ballLoc;
+			for (var actor of dynamicList) {
+				if (actor.GetBody().GetUserData().id == "football") {
+					ballLoc = actor.GetBody().GetPosition();
+
+					break;
+				}
+			}
 
 			var x = this.body.GetPosition().x - ballLoc.x;
 			var y = this.body.GetPosition().y - ballLoc.y;
