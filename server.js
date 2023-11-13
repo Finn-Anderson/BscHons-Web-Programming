@@ -263,7 +263,7 @@ io.on("connection", function(socket) {
 
 	socket.emit("setTeamNum", redNum, blueNum);
 
-	socket.emit("difficulty", gamemode.difficulty);
+	socket.emit("difficulty", gamemode.getDifficulty());
 
 	socket.emit("setScore", gamemode.score);
 

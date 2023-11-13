@@ -268,7 +268,6 @@ socket.on("countdown", (countdownNum) => {
 });
 
 socket.on("setTeamNum", (redNum, blueNum) => {
-	console.log(redNum, blueNum);
 	document.getElementsByClassName("capacity")[0].innerHTML = redNum;
 
 	document.getElementsByClassName("capacity")[1].innerHTML = blueNum;

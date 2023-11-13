@@ -4,7 +4,7 @@ class Player {}
 class AI {}
 
 // Declaration of variables to be used in the gamemode
-let difficulty;
+let difficulty = "easy";
 let botNum = {red: 0, blue: 0};
 
 let countdownNum = 3;
@@ -13,6 +13,10 @@ let totalSecs = 0;
 let timer_id;
 
 let score = {red: 0, blue: 0};
+
+function getDifficulty() {
+	return difficulty;
+}
 
 function setDifficulty(value) {
 	difficulty = value;
@@ -211,16 +215,6 @@ function gameover(team) {
 	io.sockets.emit("gameover", team);
 }
 
-function load() {
-	var [redNum, blueNum] = getTeamNum();
-
-	io.sockets.emit("setTeamNum", redNum, blueNum);
-
-	socket.broadcast.emit("difficulty", value);
-
-	io.sockets.emit("setScore", score);
-}
-
 module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 	io = ioIn;
 	physics = physicsIn;
@@ -229,5 +223,5 @@ module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 
 	physics.callback(setScore);
 
-	return {setDifficulty, setBotNum, chooseTeam, getTeamNum, botNum, score, totalSecs, restart, difficulty};
+	return {setDifficulty, setBotNum, chooseTeam, getTeamNum, botNum, score, totalSecs, restart, getDifficulty};
 }
