@@ -4,6 +4,8 @@ class Player {}
 class AI {}
 
 // Declaration of variables to be used in the gamemode
+let start = false;
+
 let difficulty = "easy";
 let botNum = {red: 0, blue: 0};
 
@@ -31,33 +33,39 @@ function setBotNum(team, value) {
 }
 
 function chooseTeam(team) {
-	new Player(team, "player", physics);
+	var actor = new Player(team, "player", physics);
 
 	setTeamNum();
 
-	var count = 0;
-	for (var actor of physics.dynamicList) {
-		if (actor.GetBody().GetUserData().id == "player") count++;
-	}
-
-	if (count == 1) {
+	if (!start) {
 		startGame();
 	}
 
-	return (physics.dynamicList.length - 1);
+	return actor;
 }
 
 function startGame() {
 	// Spawn bots
+	var reaction = 0;
+	if (difficulty == "easy") {
+		reaction = 600;
+	} else if (difficulty == "normal") {
+		reaction = 400;
+	} else if (difficulty == "hard") {
+		reaction = 200;
+	}
+
 	for (var i = 0; i < botNum.red; i++) {
-		new AI("team-red", "bot", physics, difficulty);
+		new AI("team-red", "bot", physics, reaction);
 	}
 
 	for (var i = 0; i < botNum.blue; i++) {
-		new AI("team-blue", "bot", physics, difficulty);
+		new AI("team-blue", "bot", physics, reaction);
 	}
 
 	reset();
+
+	start = true;
 }
 
 function restart() {
@@ -68,10 +76,9 @@ function restart() {
 		setTimer();
 	}
 
-	for (var actor of physics.dynamicList) {
-		physics.destroy(actor);
+	for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
+		physics.destroy(physics.dynamicList[i]);
 	}
-	physics.dynamicList.length = 0;
 
 	score = {red: 0, blue: 0};
 
@@ -79,10 +86,13 @@ function restart() {
 
 	clearInterval(timer_id);
 	clearTimeout(timer_id);
+
+	start = false;
 }
 
 function reset() {
-	for (var actor of physics.dynamicList) {
+	for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
+		const actor = physics.dynamicList[i];
 		var x;
 		var y = (physics.height - 300) / physics.scale;
 		if (actor.GetBody().GetUserData().team == "team-red") {

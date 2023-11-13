@@ -1,10 +1,10 @@
 const Actor = require("./actor");
 
 class AI extends Actor {
-	constructor(team, type, physics, difficulty) {
+	constructor(team, type, physics, reaction) {
 		super(team, type, physics);
 
-		this.reaction = difficulty;
+		this.reaction = reaction;
 		this.command = [];
 	}
 
@@ -16,7 +16,7 @@ class AI extends Actor {
 			this.command.length = 0;
 
 			var ballLoc;
-			for (var actor of dynamicList) {
+			for (var actor of this.physics.dynamicList) {
 				if (actor.GetBody().GetUserData().id == "football") {
 					ballLoc = actor.GetBody().GetPosition();
 

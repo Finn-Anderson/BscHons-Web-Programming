@@ -221,18 +221,22 @@ io.on("connection", function(socket) {
 	});
 
 	socket.on("chooseTeam", (team) => {
-		var index = gamemode.chooseTeam(team);
+		var actor = gamemode.chooseTeam(team);
 
-		socket.emit("setIndex", index);
+		socket.emit("setIndex", actor.body.GetUserData().count);
 	});
 
 	socket.on("movement", (index, event) => {
-		var actor = physics.dynamicList[index].GetBody().GetUserData().actor;
+		var obj = physics.dynamicList.find((actor) => actor.GetBody().GetUserData().count == index)
 
-		if (event.type == "keydown") {
-			actor.onKeyDown(event);
-		} else {
-			actor.onKeyUp(event);
+		if (obj) {
+			var actor = obj.GetBody().GetUserData().actor;
+
+			if (event.type == "keydown") {
+				actor.onKeyDown(event);
+			} else {
+				actor.onKeyUp(event);
+			}
 		}
 	})
 
@@ -243,20 +247,24 @@ io.on("connection", function(socket) {
 	});
 
 	socket.on("gameover", (index) => {
-		var [redNum, blueNum] = gamemode.getTeamNum();
-		var positive = 0;
-		var negative = 1;
-		if (physics.dynamicList[index].GetBody().GetUserData().team == "team-red") {
-			positive = 1000 * gamemode.score.red * redNum;
-			negative = blueNum * (gamemode.score.blue + 1);
-		} else {
-			positive = 1000 * gamemode.score.blue * blueNum;
-			negative = redNum * (gamemode.score.red + 1);
+		var obj = physics.dynamicList.find((actor) => actor.GetBody().GetUserData().count == index)
+
+		if (obj) {
+			var [redNum, blueNum] = gamemode.getTeamNum();
+			var positive = 0;
+			var negative = 1;
+			if (obj.GetBody().GetUserData().team == "team-red") {
+				positive = 1000 * gamemode.score.red * redNum;
+				negative = blueNum * (gamemode.score.blue + 1);
+			} else {
+				positive = 1000 * gamemode.score.blue * blueNum;
+				negative = redNum * (gamemode.score.red + 1);
+			}
+
+			var finalScore = Math.trunc(positive / negative - gamemode.totalSecs);
+
+			socket.emit("displaySubmitScore", finalScore, gamemode.difficulty);
 		}
-
-		var finalScore = Math.trunc(positive / negative - gamemode.totalSecs);
-
-		socket.emit("displaySubmitScore", finalScore, gamemode.difficulty)
 	});
 
 	var [redNum, blueNum] = gamemode.getTeamNum();

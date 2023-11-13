@@ -99,7 +99,7 @@ socket.on("add", (userdata, position, angle) => {
 
 	stage.update();
 
-	if (userdata.count) {
+	if (userdata.count != null) {
 		idList[userdata.count] = easelObj;
 	}
 });

@@ -16,6 +16,8 @@ var b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
 var b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
 var b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
 
+let count = 0;
+
 function CreateObject(density, friction, restitution, bDynamic, x, y, angle, objid, sensor) {
 	var fixDef = new b2FixtureDef;
 	fixDef.density = density;
@@ -59,7 +61,7 @@ function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, 
 	fixDef.shape = new b2CircleShape(r/scale);
 
 	var thisobj = world.CreateBody(bodyDef).CreateFixture(fixDef);
-	thisobj.GetBody().SetUserData({id: objid, width: r, height: r, count: objid + world.GetBodyCount()});
+	thisobj.GetBody().SetUserData({id: objid, width: r, height: r, count: count});
 
 	var id;
 	if (team) {
@@ -68,7 +70,9 @@ function CreateCircle(density, friction, restitution, bDynamic, x, y, r, angle, 
 		id = objid;
 	}
 
-	io.sockets.emit("add", {id: id, width: r, height: r, count: objid + world.GetBodyCount()}, thisobj.GetBody().GetPosition(), angle);
+	io.sockets.emit("add", {id: id, width: r, height: r, count: count}, thisobj.GetBody().GetPosition(), angle);
+
+	count++;
 
 	return thisobj;
 }
@@ -141,6 +145,9 @@ function destroy(actor) {
 	io.sockets.emit("destroy", actor.GetBody().GetUserData().count);
 
 	world.DestroyBody(actor.GetBody());
+
+	var index = dynamicList.indexOf(actor);
+	dynamicList.splice(index, 1);
 }
 
 function tick() {
