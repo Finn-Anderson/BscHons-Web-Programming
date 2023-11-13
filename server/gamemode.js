@@ -129,7 +129,7 @@ function countdown() {
 
 		timer_id = setInterval(setTimer, 1000);
 
-		physics.canScore = true
+		physics.setCanScore(true);
 	}
 
 	countdownNum--;
@@ -173,33 +173,31 @@ function setTeamNum() {
 }
 
 function setScore(goal) {
-	if (physics.canScore) {
-		if (goal == "redGoal") {
-			score.blue++;
-		} else {
-			score.red++;
+	if (goal == "redGoal") {
+		score.blue++;
+	} else {
+		score.red++;
+	}
+
+	physics.setCanScore(false);
+
+	io.sockets.emit("audio", "goal");
+
+	io.sockets.emit("setScore", score);
+
+	io.sockets.emit("goal");
+
+	clearInterval(timer_id);
+
+	if (score.red == 5 || score.blue == 5) {
+		var team = "team-red";
+		if (score.blue == 5) {
+			team = "team=blue"
 		}
 
-		physics.canScore = false;
-
-		io.sockets.emit("audio", "goal");
-
-		io.sockets.emit("setScore", score);
-
-		io.sockets.emit("goal");
-
-		clearInterval(timer_id);
-
-		if (score.red == 5 || score.blue == 5) {
-			var team = "team-red";
-			if (score.blue == 5) {
-				team = "team=blue"
-			}
-
-			timer_id = setTimeout(gameover, 5000, team);
-		} else {
-			timer_id = setTimeout(reset, 5000);
-		}
+		timer_id = setTimeout(gameover, 5000, team);
+	} else {
+		timer_id = setTimeout(reset, 5000);
 	}
 }
 

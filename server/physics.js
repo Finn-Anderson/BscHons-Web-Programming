@@ -123,6 +123,7 @@ function setupCollisions() {
 // Variables that are used later in gamemode
 let play;
 let canScore = true;
+let last;
 let dynamicList = [];
 
 function init() {
@@ -172,10 +173,10 @@ function tick() {
 				} else if (Math.sign(ballVelocity.x) == 1)  {
 					ballVelocity.x -= 0.03; 
 				}
+			}
 
-				if (!canScore) {
-					io.sockets.emit("zoomIntoScorer", actor.GetBody().GetUserData().last.GetPosition());
-				}
+			if (!canScore) {
+				io.sockets.emit("zoomIntoScorer", last);
 			}
 		}
 	}
@@ -212,7 +213,10 @@ function initialiseContacts() {
 				}
 			}
 		} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
-			setScoreFunc(obj1.GetUserData().id);
+			if (canScore) {
+				setScoreFunc(obj1.GetUserData().id);
+				last = obj2.GetUserData().last.GetPosition()
+			}
 		} else if ((obj2.GetUserData().id == "player" || obj2.GetUserData().id == "bot") && (obj1.GetUserData().id == "ground" || obj1.GetUserData().id == "crossbar")) {
 			for (var actor of dynamicList) {
 				if (actor.GetBody() == obj2) {
@@ -228,6 +232,10 @@ function initialiseContacts() {
 
 function setPlay(value) {
 	play = value;
+}
+
+function setCanScore(value) {
+	canScore = value;
 }
 
 function resetPhysics(body, x, y) {
@@ -250,5 +258,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, width, height, scale, callback};
+	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, setCanScore, width, height, scale, callback};
 }
