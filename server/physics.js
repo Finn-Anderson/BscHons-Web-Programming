@@ -214,8 +214,8 @@ function initialiseContacts() {
 			}
 		} else if ((obj1.GetUserData().id == "redGoal" || obj1.GetUserData().id == "blueGoal") && obj2.GetUserData().id == "football") {
 			if (canScore) {
-				setScoreFunc(obj1.GetUserData().id);
-				last = obj2.GetUserData().last.GetPosition()
+				setScoreFunc(obj1.GetUserData().id, obj2.GetUserData().last.GetUserData().actor);
+				last = obj2.GetUserData().last.GetPosition();
 			}
 		} else if ((obj2.GetUserData().id == "player" || obj2.GetUserData().id == "bot") && (obj1.GetUserData().id == "ground" || obj1.GetUserData().id == "crossbar")) {
 			for (var actor of dynamicList) {
@@ -258,5 +258,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, setCanScore, width, height, scale, callback};
+	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, setCanScore, width, height, scale, last, callback};
 }

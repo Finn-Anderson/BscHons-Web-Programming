@@ -32,8 +32,8 @@ function setBotNum(team, value) {
 	}
 }
 
-function chooseTeam(team) {
-	var actor = new Player(team, "player", physics);
+function chooseTeam(team, name) {
+	var actor = new Player(team, name, "player", physics);
 
 	setTeamNum();
 
@@ -172,7 +172,11 @@ function setTeamNum() {
 	io.sockets.emit("setTeamNum", redNum, blueNum);
 }
 
-function setScore(goal) {
+function getScore() {
+	return score;
+}
+
+function setScore(goal, actor) {
 	if (goal == "redGoal") {
 		score.blue++;
 	} else {
@@ -185,7 +189,7 @@ function setScore(goal) {
 
 	io.sockets.emit("setScore", score);
 
-	io.sockets.emit("goal");
+	io.sockets.emit("goal", actor.name);
 
 	clearInterval(timer_id);
 
@@ -199,6 +203,10 @@ function setScore(goal) {
 	} else {
 		timer_id = setTimeout(reset, 5000);
 	}
+}
+
+function getTimer() {
+	return totalSecs;
 }
 
 function setTimer() {
@@ -231,5 +239,5 @@ module.exports = function(ioIn, physicsIn, playerIn, AIIn) {
 
 	physics.callback(setScore);
 
-	return {setDifficulty, setBotNum, chooseTeam, getTeamNum, botNum, score, totalSecs, restart, getDifficulty};
+	return {setDifficulty, setBotNum, chooseTeam, getTeamNum, botNum, getScore, getTimer, restart, getDifficulty};
 }

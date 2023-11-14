@@ -279,8 +279,12 @@ socket.on("setScore", (score) => {
 	s.children[1].innerHTML = score.blue;
 });
 
-socket.on("goal", (score) => {
-	document.getElementById("countdown").innerHTML = "GOAL!!!";
+socket.on("goal", (name) => {
+	if (!name) {
+		name = "Player";
+	}
+
+	document.getElementById("countdown").innerHTML = name + " Scored!!!";
 	document.getElementById("countdown").classList.add("countdown-flash");
 });
 
@@ -326,9 +330,9 @@ socket.on("displaySubmitScore", (score, difficulty) => {
 		document.querySelectorAll(".submitScoreButton").forEach(e => e.remove());
 
 		document.getElementById("gameover").appendChild(button);
-
-		document.getElementById("gameover").children[1].innerHTML = "Score: " + score;
 	}
+
+	document.getElementById("gameover").children[1].innerHTML = "Score: " + score;
 })
 
 //

@@ -4,6 +4,8 @@ class AI extends Actor {
 	constructor(team, type, physics, reaction) {
 		super(team, type, physics);
 
+		this.name = "Bot";
+
 		this.reaction = reaction;
 		this.command = [];
 	}

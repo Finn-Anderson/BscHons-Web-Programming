@@ -1,8 +1,10 @@
 const Actor = require("./actor");
 
 class Player extends Actor {
-	constructor(team, type, physics) {
+	constructor(team, name, type, physics) {
 		super(team, type, physics);
+
+		this.name = name;
 
 		// Movement key listeners
 		this.keys = [];

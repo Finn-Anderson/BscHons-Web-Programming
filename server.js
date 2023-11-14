@@ -7,11 +7,13 @@ const session = require('express-session');
 
 const app = express(); // Use static files in ROOT/client folder
 
-app.use(session({
+const sessionMiddleware = session({
 	secret: "<W,Z6Y*XuJ~A/4V43'Y/wL]H/+idbvNwA)Ko_N_meIUYb9n6B3",
 	resave: false,
 	saveUninitialized: false,
-}))
+})
+
+app.use(sessionMiddleware);
 
 app.get("/", function(request, response) { // Root dir
 	response.sendFile(__dirname + "/client/index.html");
@@ -176,6 +178,7 @@ Error.stackTraceLimit = Infinity;
 
 const server = app.listen(port, host);
 const io = require("socket.io")(server);
+io.engine.use(sessionMiddleware);
 
 const physics = require("./server/physics")(io);
 let world = physics.init();
@@ -221,7 +224,7 @@ io.on("connection", function(socket) {
 	});
 
 	socket.on("chooseTeam", (team) => {
-		var actor = gamemode.chooseTeam(team);
+		var actor = gamemode.chooseTeam(team, socket.request.session.auth?.name);
 
 		socket.emit("setIndex", actor.body.GetUserData().count);
 	});
@@ -248,22 +251,23 @@ io.on("connection", function(socket) {
 
 	socket.on("gameover", (index) => {
 		var obj = physics.dynamicList.find((actor) => actor.GetBody().GetUserData().count == index)
+		var score = gamemode.getScore();
 
 		if (obj) {
 			var [redNum, blueNum] = gamemode.getTeamNum();
 			var positive = 0;
 			var negative = 1;
 			if (obj.GetBody().GetUserData().team == "team-red") {
-				positive = 1000 * gamemode.score.red * redNum;
-				negative = blueNum * (gamemode.score.blue + 1);
+				positive = 1000 * score.red * blueNum;
+				negative = redNum * (score.blue + 1);
 			} else {
-				positive = 1000 * gamemode.score.blue * blueNum;
-				negative = redNum * (gamemode.score.red + 1);
+				positive = 1000 * score.blue * redNum;
+				negative = blueNum * (score.red + 1);
 			}
 
-			var finalScore = Math.trunc(positive / negative - gamemode.totalSecs);
+			var finalScore = Math.trunc(positive / negative - gamemode.getTimer());
 
-			socket.emit("displaySubmitScore", finalScore, gamemode.difficulty);
+			socket.emit("displaySubmitScore", finalScore, gamemode.getDifficulty());
 		}
 	});
 
@@ -273,7 +277,7 @@ io.on("connection", function(socket) {
 
 	socket.emit("difficulty", gamemode.getDifficulty());
 
-	socket.emit("setScore", gamemode.score);
+	socket.emit("setScore", gamemode.getScore());
 
 	socket.emit("botNum", "red-bots", gamemode.botNum.red);
 
