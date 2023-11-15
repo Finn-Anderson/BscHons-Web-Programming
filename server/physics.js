@@ -238,6 +238,10 @@ function setCanScore(value) {
 	canScore = value;
 }
 
+function getCount() {
+	return count;
+}
+
 function resetPhysics(body, x, y) {
 	body.SetLinearVelocity(new b2Vec2 (0, 0));
 	body.SetPosition(new b2Vec2 (x, y));
@@ -258,5 +262,5 @@ function callback(func) {
 module.exports = function(ioIn) {
 	io = ioIn;
 
-	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, setCanScore, width, height, scale, last, callback};
+	return {init, dynamicList, CreateCircle, destroy, setPlay, resetPhysics, wakeBody, setCanScore, getCount, width, height, scale, last, callback};
 }

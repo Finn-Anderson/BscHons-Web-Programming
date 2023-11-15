@@ -15,6 +15,8 @@ let manifest = [
 	{src:"crossbar.png", id:"crossbar"},
 	{src:"team-red.png", id:"team-red"},
 	{src:"team-blue.png", id:"team-blue"},
+	{src:"player-red.png", id:"player-red"},
+	{src:"player-blue.png", id:"player-blue"},
 ];
 
 function CreateBitmap(img, b2x, b2y) {
@@ -82,6 +84,14 @@ socket.on("tick", (DynamicBodiesList) => {
 
 socket.on("add", (userdata, position, angle) => {
 	var bitmapName = userdata.id;
+
+	if (userdata.count != null && userdata.count == localStorage.getItem("index")) {
+		if (bitmapName == "team-red") {
+			bitmapName = "player-red";
+		} else {
+			bitmapName = "player-blue";
+		}
+	}
 
 	if (!loader.getResult(bitmapName)) return;
 
@@ -202,6 +212,8 @@ function restart() {
 }
 
 socket.on("restart", () => {
+	resetZoom();
+
 	document.getElementById("gameover").style.display = "none";
 	
 	document.getElementById("displaymenu").style.display = "block";
@@ -231,6 +243,7 @@ function setAudio() {
 socket.on("audio", (type) => {
 	if (!playAudio) return;
 
+	// Play respective audio based on type
 	if (type == "kick") {
 		document.getElementById("audioKick").play();
 	} else if (type == "goal") {
@@ -246,10 +259,7 @@ socket.on("audio", (type) => {
 
 // Gamemode
 socket.on("reset", () => {
-	var canvas = document.getElementsByTagName("canvas")[0];
-	canvas.style.transform = "scale(1.0)";
-	canvas.style.left = 0;
-	canvas.style.top = 0;
+	resetZoom();
 
 	document.getElementById("countdown").classList.remove("countdown-flash");
 	document.getElementById("countdown").innerHTML = 3;
@@ -294,6 +304,13 @@ socket.on("zoomIntoScorer", (pos) => {
 	canvas.style.left = -pos.x * scale + (width / 2) + "px";
 	canvas.style.top = -pos.y * scale + (height / 2) + "px";
 });
+
+function resetZoom() {
+	var canvas = document.getElementsByTagName("canvas")[0];
+	canvas.style.transform = "scale(1.0)";
+	canvas.style.left = 0;
+	canvas.style.top = 0;
+}
 
 socket.on("setTimer", (minutes, seconds) => {
 	document.getElementById("timer").innerHTML = minutes + ":" + seconds;

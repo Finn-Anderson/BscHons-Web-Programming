@@ -224,9 +224,9 @@ io.on("connection", function(socket) {
 	});
 
 	socket.on("chooseTeam", (team) => {
-		var actor = gamemode.chooseTeam(team, socket.request.session.auth?.name);
+		socket.emit("setIndex", physics.getCount());
 
-		socket.emit("setIndex", actor.body.GetUserData().count);
+		var actor = gamemode.chooseTeam(team, socket.request.session.auth?.name, socket.id);
 	});
 
 	socket.on("movement", (index, event) => {
@@ -282,4 +282,31 @@ io.on("connection", function(socket) {
 	socket.emit("botNum", "red-bots", gamemode.botNum.red);
 
 	socket.emit("botNum", "blue-bots", gamemode.botNum.blue);
+
+	socket.on("disconnect", (reason) => {
+		if (reason == "transport close") {
+			var tally = 0;
+			for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
+				var actor = physics.dynamicList[i].GetBody().GetUserData().actor;
+
+				if (actor) {
+					if (actor.sid == socket.id) {
+						physics.destroy(physics.dynamicList[i]);
+
+						continue;
+					}
+
+					if (actor instanceof player) {
+						tally++;
+					}
+				}
+			}
+
+			if (tally == 0) {
+				gamemode.restart();
+
+				io.sockets.emit("restart");
+			}
+		}
+	})
 });

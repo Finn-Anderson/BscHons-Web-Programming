@@ -32,8 +32,8 @@ function setBotNum(team, value) {
 	}
 }
 
-function chooseTeam(team, name) {
-	var actor = new Player(team, name, "player", physics);
+function chooseTeam(team, name, sid) {
+	var actor = new Player(team, name, sid, "player", physics);
 
 	setTeamNum();
 
