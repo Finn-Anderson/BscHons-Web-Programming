@@ -91,6 +91,7 @@ function restart() {
 }
 
 function reset() {
+	// Reset player and bot positions based on team. Also removes the football.
 	for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
 		const actor = physics.dynamicList[i];
 		var x;
@@ -195,6 +196,7 @@ function setScore(goal, actor) {
 
 	if (score.red == 5 || score.blue == 5) {
 		var team = "team-red";
+		
 		if (score.blue == 5) {
 			team = "team=blue"
 		}

@@ -180,6 +180,8 @@ function tick() {
 			}
 		}
 	}
+	
+	// Gives relevant actor data to client for rendering
 	const map = dynamicList.map((actor) => { 
 		return {count: actor.GetBody().GetUserData().count, position: actor.GetBody().GetPosition(), angle: actor.GetBody().GetAngle()}; 
 	});

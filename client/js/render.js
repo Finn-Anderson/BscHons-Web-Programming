@@ -85,6 +85,7 @@ socket.on("tick", (DynamicBodiesList) => {
 socket.on("add", (userdata, position, angle) => {
 	var bitmapName = userdata.id;
 
+	// Sets player sprite as a lighter colour for indetification purposes
 	if (userdata.count != null && userdata.count == localStorage.getItem("index")) {
 		if (bitmapName == "team-red") {
 			bitmapName = "player-red";

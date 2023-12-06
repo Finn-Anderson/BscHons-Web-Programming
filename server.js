@@ -189,6 +189,7 @@ const ai = require("./server/ai");
 const gamemode = require("./server/gamemode.js")(io, physics, player, ai); 
 
 io.on("connection", function(socket) {
+	// Load world and any bots/players present in the world on connection load
 	socket.emit("load", (response) => {
 		if (response.status == "complete") {
 			var node = world.GetGroundBody().m_prev;
@@ -232,6 +233,7 @@ io.on("connection", function(socket) {
 	socket.on("movement", (index, event) => {
 		var obj = physics.dynamicList.find((actor) => actor.GetBody().GetUserData().count == index)
 
+		// Check if player's object body exists before processing movement
 		if (obj) {
 			var actor = obj.GetBody().GetUserData().actor;
 
@@ -253,6 +255,7 @@ io.on("connection", function(socket) {
 		var obj = physics.dynamicList.find((actor) => actor.GetBody().GetUserData().count == index)
 		var score = gamemode.getScore();
 
+		// Check if player's object body exists before calculating their final score
 		if (obj) {
 			var [redNum, blueNum] = gamemode.getTeamNum();
 			var positive = 0;
@@ -284,6 +287,8 @@ io.on("connection", function(socket) {
 	socket.emit("botNum", "blue-bots", gamemode.botNum.blue);
 
 	socket.on("disconnect", (reason) => {
+		// Calls on player disconnect (closing tab). Removes player from game and restarts if they were the only player
+
 		if (reason == "transport close") {
 			var tally = 0;
 			for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
