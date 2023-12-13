@@ -290,7 +290,6 @@ io.on("connection", function(socket) {
 		// Calls on player disconnect (closing tab). Removes player from game and restarts if they were the only player
 
 		if (reason == "transport close" || reason == "transport error") {
-
 			var tally = 0;
 			for (var i = physics.dynamicList.length - 1; i >= 0; i--) {
 				var actor = physics.dynamicList[i].GetBody().GetUserData().actor;
